@@ -1,4 +1,9 @@
-/* 단방향 Linked List 구현 */
+/*
+*** 단방향 Linked List 구현
+*** 
+*** Author: iwryu
+*** Since: 20-07-31
+*/
 
 #include <iostream>
 
@@ -6,17 +11,27 @@ using namespace std;
 
 class Node
 {
+// Public 변수
 public:
-  __int16 data;
+  __int16 data; // Node의 data
   Node* next = nullptr;
 
+// Public 함수
 public:
-  Node(__int8 d) { this->data = d; } // constructure
-  void addNode(__int16 d); // node를 추가
-  void deleteNode(__int16 d); // node를 삭제
-  void retrieve(); // 모든 node를 출력
+  Node(__int8 d) { this->data = d; } // Constructure
+  void addNode(__int16 d);
+  void deleteNode(__int16 d);
+  void retrieve();
 }; // end class
 
+/*
+*** Node를 추가
+*** 
+*** Author: iwryu
+*** Since: 20-07-31
+*** Params: d
+*** Return:
+*/
 void Node::addNode(__int16 d)
 {
   Node* end = new Node(d);
@@ -30,17 +45,38 @@ void Node::addNode(__int16 d)
   nodeIter->next = end;
 }
 
+/*
+*** Node를 삭제
+***
+*** Author: iwryu
+*** Since: 20-07-31
+*** Params: d
+*** Return:
+*/
 void Node::deleteNode(__int16 d)
 {
   Node* nodeIter = this;
 
   while (nodeIter->next != NULL)
   {
-    if (nodeIter->next->data == d) nodeIter->next = nodeIter->next->next;
+    if (nodeIter->next->data == d)
+    {
+      Node* deleteNode = nodeIter->next;
+      nodeIter->next = nodeIter->next->next;
+      delete deleteNode;
+    }
     else nodeIter = nodeIter->next;
   }
 }
 
+/*
+*** 모든 node를 출력
+***
+*** Author: iwryu
+*** Since: 20-07-31
+*** Params:
+*** Return:
+*/
 void Node::retrieve()
 {
   Node* nodeIter = this;
