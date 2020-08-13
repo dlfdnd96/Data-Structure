@@ -1,82 +1,106 @@
 #include <iostream>
-#include <stdexcept>
+#include <exception>
 
 using namespace std;
 
-template<class ST>
+template <typename ST>
 class Stack
 {
+	template <typename NT>
+	class Node
+	{
+	public:
+		Node(NT data) : mData(data) {}
+		~Node() {}
+		const NT GetNodeData() const
+		{
+			return mData;
+		}
+		Node<NT>* GetNodeNext() const
+		{
+			return mNext;
+		}
+		void SetNodeNext(Node<NT>* inputNode)
+		{
+			this->mNext = inputNode;
+		}
+
+	private:
+		const NT mData;
+		Node<NT>* mNext = nullptr;
+	};
+
 public:
-  template<class NT>
-  class Node
-  {
-  public:
-    NT data = NULL;
-    Node<NT>* next = nullptr;
+	void Push(ST data)
+	{
+		Node<ST>* addNode = new Node<ST>(data);
 
-  public:
-    Node(NT data) { this->data = data; }
-  }; // end Node class
+		if (mTop == nullptr)
+		{
+			mTop = addNode;
 
-public:
-  Node<ST>* top = nullptr;
+			return;
+		}
 
-public:
-  ST pop()
-  {
-    if (top == NULL) throw runtime_error("Top이 비어있습니다.");
+		addNode->SetNodeNext(mTop);
+		mTop = addNode;
+	}
+	const ST Pop()
+	{
+		if (mTop == nullptr)
+		{
+			throw runtime_error("Stack is empty!!");
+		}
 
-    ST item = top->data;
-    top = top->next;
+		Node<ST>* tempStoreDeleteNode = mTop;
+		ST currentData = mTop->GetNodeData();
+		mTop = mTop->GetNodeNext();
 
-    return item;
-  }
+		delete tempStoreDeleteNode;
 
-  void push(ST data)
-  {
-    Node<ST>* n = new Node<ST>(data);
+		return currentData;
+	}
+	const ST Peek() const
+	{
+		if (mTop == nullptr)
+		{
+			throw runtime_error("Stack is empty!!");
+		}
 
-    n->next = top;
-    top = n;
-  }
+		return mTop->GetNodeData();
+	}
+	const bool IsEmpty() const
+	{
+		return mTop == nullptr;
+	}
 
-  ST peek()
-  {
-    if (top == NULL) throw runtime_error("Top이 비어있습니다.");
-
-    return top->data;
-  }
-
-  bool isEmpty()
-  {
-    return top == NULL;
-  }
-}; // end Stack class
+private:
+	Node<ST>* mTop;
+};
 
 int main()
 {
-  Stack<int>* s = new Stack<int>();
-  s->push(1);
-  s->push(2);
-  s->push(3);
-  s->push(4);
+	unique_ptr<Stack<int>> stackUniquePointer = make_unique<Stack<int>>();
+	stackUniquePointer->Push(1);
+	stackUniquePointer->Push(2);
+	stackUniquePointer->Push(3);
+	stackUniquePointer->Push(4);
 
-  try
-  {
-    cout << s->pop() << endl;
-    cout << s->pop() << endl;
-    cout << s->peek() << endl;
-    cout << s->pop() << endl;
-    cout << s->isEmpty() << endl;
-    cout << s->pop() << endl;
-    cout << s->isEmpty() << endl;
-    cout << s->pop() << endl;
-    cout << s->peek() << endl;
-  }
-  catch (runtime_error& e)
-  {
-    cout << "오류 발생: " << e.what() << endl;
-  }
+	try
+	{
+		cout << "Pop: " << stackUniquePointer->Pop() << endl;
+		cout << "Pop: " << stackUniquePointer->Pop() << endl;
+		cout << "Pop: " << stackUniquePointer->Pop() << endl;
+		cout << "Peek: " << stackUniquePointer->Peek() << endl;
+		cout << "IsEmpty?: " << stackUniquePointer->IsEmpty() << endl;
+		cout << "Pop: " << stackUniquePointer->Pop() << endl;
+		cout << "IsEmpty?: " << stackUniquePointer->IsEmpty() << endl;
+		cout << "Pop: " << stackUniquePointer->Pop() << endl;
+	}
+	catch (const runtime_error errorMessage)
+	{
+		cout << "Exception occur: " << errorMessage.what() << endl;
+	}
 
-  return 0;
+	return 0;
 }

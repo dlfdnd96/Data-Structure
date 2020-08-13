@@ -9,120 +9,120 @@ using namespace std;
 class LinkedList
 {
 public:
-  class Node
-  {
-  public:
-    __int16 data;
-    Node* next = nullptr;
+	class Node
+	{
+	public:
+		__int16 mData;
+		Node* next = nullptr;
 
-  public:
-    Node() {}
-    Node(__int16 d) { this->data = d; }
-  }; // end Node class
+	public:
+		Node() {}
+		Node(__int16 d) { this->mData = d; }
+	}; // end Node class
 
-  Node* header;
+	Node* header;
 
 public:
-  LinkedList() { header = new Node(); }
-  void addNode(__int16 d);
-  void addNode(Node* n);
-  void retrieve();
-  Node* findLoop(Node* head);
-  Node* getStartNode(Node* n, __int16 length);
+	LinkedList() { header = new Node(); }
+	void addNode(__int16 d);
+	void addNode(Node* n);
+	void retrieve();
+	Node* findLoop(Node* head);
+	Node* getStartNode(Node* n, __int16 length);
 }; // end LinkedList class
 
 void LinkedList::addNode(__int16 d)
 {
-  Node* end = new Node();
-  end->data = d;
-  Node* iterNode = header;
+	Node* end = new Node();
+	end->mData = d;
+	Node* iterNode = header;
 
-  while (iterNode->next != NULL)
-  {
-    iterNode = iterNode->next;
-  }
+	while (iterNode->next != NULL)
+	{
+		iterNode = iterNode->next;
+	}
 
-  iterNode->next = end;
+	iterNode->next = end;
 }
 
 void LinkedList::addNode(Node* n)
 {
-  Node* iterNode = header;
+	Node* iterNode = header;
 
-  while (iterNode->next != NULL)
-  {
-    iterNode = iterNode->next;
-  }
+	while (iterNode->next != NULL)
+	{
+		iterNode = iterNode->next;
+	}
 
-  iterNode->next = n;
+	iterNode->next = n;
 }
 
 void LinkedList::retrieve()
 {
-  Node* iterNode = header->next;
+	Node* iterNode = header->next;
 
-  while (iterNode->next != NULL)
-  {
-    cout << iterNode->data << " -> ";
-    iterNode = iterNode->next;
-  }
+	while (iterNode->next != NULL)
+	{
+		cout << iterNode->mData << " -> ";
+		iterNode = iterNode->next;
+	}
 
-  cout << iterNode->data << endl;
+	cout << iterNode->mData << endl;
 }
 
 LinkedList::Node* LinkedList::getStartNode(Node* n, __int16 length)
 {
-  for (int i = 0; i < length; i++)
-  {
-    n = n->next;
-  }
+	for (int i = 0; i < length; i++)
+	{
+		n = n->next;
+	}
 
-  return n;
+	return n;
 }
 
 LinkedList::Node* LinkedList::findLoop(Node* head)
 {
-  Node* fast = head;
-  Node* slow = head;
+	Node* fast = head;
+	Node* slow = head;
 
-  while (fast != NULL && fast->next != NULL)
-  {
-    slow = slow->next;
-    fast = fast->next->next;
+	while (fast != NULL && fast->next != NULL)
+	{
+		slow = slow->next;
+		fast = fast->next->next;
 
-    if (fast == slow) break;
-  }
+		if (fast == slow) break;
+	}
 
-  if (fast == NULL || fast->next == NULL) return NULL;
+	if (fast == NULL || fast->next == NULL) return NULL;
 
-  slow = head;
+	slow = head;
 
-  while (fast != slow)
-  {
-    slow = slow->next;
-    fast = fast->next;
-  }
+	while (fast != slow)
+	{
+		slow = slow->next;
+		fast = fast->next;
+	}
 
-  return fast;
+	return fast;
 }
 
 int main()
 {
-  LinkedList l1, l2;
-  l1.addNode(1);
-  l1.addNode(2);
-  l1.addNode(3);
-  l1.addNode(4);
-  l1.addNode(5);
-  l1.addNode(6);
-  l1.addNode(7);
-  l1.addNode(8);
-  l1.addNode(l1.getStartNode(l1.header, 2));
+	LinkedList l1, l2;
+	l1.addNode(1);
+	l1.addNode(2);
+	l1.addNode(3);
+	l1.addNode(4);
+	l1.addNode(5);
+	l1.addNode(6);
+	l1.addNode(7);
+	l1.addNode(8);
+	l1.addNode(l1.getStartNode(l1.header, 2));
 
-  LinkedList::Node* n = l2.findLoop(l1.header->next);
+	LinkedList::Node* n = l2.findLoop(l1.header->next);
 
-  if (n != NULL) cout << "Start of loop: " << n->data << endl;
-  else cout << "Loop not found" << endl;
+	if (n != NULL) cout << "Start of loop: " << n->mData << endl;
+	else cout << "Loop not found" << endl;
 
-  return 0;
+	return 0;
 }

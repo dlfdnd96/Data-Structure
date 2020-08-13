@@ -1,112 +1,148 @@
-/* 
+/*
 *** 정렬되어 있지 않는 Linked List Nodd의
 *** 중복 값을 삭제하라
 */
 #include <iostream>
 #include <unordered_set>
 
-using namespace std;
+using std::cout;
+using std::endl;
+using std::unordered_set;
 
 class LinkedList
 {
 public:
-  class Node
-  {
-  public:
-    __int16 data;
-    Node* next = nullptr;
-  }; // end Node class
+	class Node
+	{
+	public:
+		void SetData(__int32 const data);
+		__int32 GetData() const;
+		void SetNode(Node* const node);
+		Node* GetNextNode() const;
 
-  Node* header;
-  unordered_set<__int16> dataHashSet;
+	private:
+		__int32 mData = NULL;
+		Node* mNext = nullptr;
+	}; // end Node class
 
 public:
-  LinkedList() { this->header = new Node(); }
-  void addNode(__int16 d);
-  void deleteDuplicationNodeUsingHashSet(); // HashSet을 이용하여 중복값 제거
-  void deleteDuplicationNodeUsingPointer(); // 포인터를 이용하여 중복값 제거
-  void retrieve();
+	LinkedList()
+	{
+		this->mHeader = new Node();
+	}
+	void AddNode(__int32 const data);
+	void DeleteDuplicationNodeUsingHashSet(); // HashSet을 이용하여 중복값 제거
+	void DeleteDuplicationNodeUsingPointer(); // 포인터를 이용하여 중복값 제거
+	void Retrieve();
+
+private:
+	Node* mHeader;
+	unordered_set<__int32> mDataHashSet;
 }; // end Node class
 
-void LinkedList::addNode(__int16 d)
+void LinkedList::Node::SetData(__int32 const data)
 {
-  Node* end = new Node();
-  end->data = d;
-  Node* iterNode = header;
-
-  while (iterNode->next != NULL)
-  {
-    iterNode = iterNode->next;
-  }
-
-  iterNode->next = end;
+	this->mData = data;
+}
+__int32 LinkedList::Node::GetData() const
+{
+	return this->mData;
+}
+void LinkedList::Node::SetNode(LinkedList::Node* node)
+{
+	this->mNext = node;
+}
+LinkedList::Node* LinkedList::Node::GetNextNode() const
+{
+	return this->mNext;
 }
 
-void LinkedList::deleteDuplicationNodeUsingHashSet()
+void LinkedList::AddNode(__int32 const data)
 {
-  Node* iterNode = header;
+	Node* end = new Node();
+	end->SetData(data);
+	Node* iterNode = mHeader;
 
-  while (iterNode->next != NULL)
-  {
-    // 노드 값이 HashSet과 중복여부 확인
-    auto iterHashSet = dataHashSet.find(iterNode->next->data);
+	while (iterNode->GetNextNode() != nullptr)
+	{
+		iterNode = iterNode->GetNextNode();
+	}
 
-    if (iterHashSet == dataHashSet.end()) // 노드의 값이 중복 값이 아니라면
-    {
-      dataHashSet.insert(iterNode->data);
-      iterNode = iterNode->next;
-    }
-    else iterNode->next = iterNode->next->next;
-  }
+	iterNode->SetNode(end);
 }
 
-void LinkedList::deleteDuplicationNodeUsingPointer()
+void LinkedList::DeleteDuplicationNodeUsingHashSet()
 {
-  Node* iterNode = header;
+	Node* iterNode = mHeader;
 
-  while (iterNode != NULL && iterNode->next != NULL)
-  {
-    // 중복 값을 찾을 포인터 선언
-    Node* iterNodeRunner = iterNode;
+	while (iterNode->GetNextNode() != nullptr)
+	{
+		// 노드 값이 HashSet과 중복여부 확인
+		auto iterHashSet = mDataHashSet.find(iterNode->GetNextNode()->GetData());
 
-    while (iterNodeRunner->next != NULL)
-    {
-      if (iterNode->data == iterNodeRunner->next->data) iterNodeRunner->next = iterNodeRunner->next->next;
-      else iterNodeRunner = iterNodeRunner->next;
-    }
-
-    iterNode = iterNode->next;
-  }
+		if (iterHashSet == mDataHashSet.end()) // 노드의 값이 중복 값이 아니라면
+		{
+			mDataHashSet.insert(iterNode->GetData());
+			iterNode = iterNode->GetNextNode();
+		}
+		else iterNode->SetNode(iterNode->GetNextNode()->GetNextNode());
+	}
 }
 
-void LinkedList::retrieve()
+void LinkedList::DeleteDuplicationNodeUsingPointer()
 {
-  Node* iterNode = header->next;
+	Node* iterNode = mHeader;
 
-  while (iterNode->next != NULL)
-  {
-    cout << iterNode->data << " -> ";
-    iterNode = iterNode->next;
-  }
+	while (iterNode != nullptr && iterNode->GetNextNode() != nullptr)
+	{
+		// 중복 값을 찾을 포인터 선언
+		Node* iterNodeRunner = iterNode;
 
-  cout << iterNode->data << endl;
+		while (iterNodeRunner->GetNextNode() != nullptr)
+		{
+			if (iterNode->GetData() == iterNodeRunner->GetNextNode()->GetData())
+			{
+				iterNodeRunner->SetNode(iterNodeRunner->GetNextNode()->GetNextNode());
+			}
+			else
+			{
+				iterNodeRunner = iterNodeRunner->GetNextNode();
+			}
+		}
+
+		iterNode = iterNode->GetNextNode();
+	}
+}
+
+void LinkedList::Retrieve()
+{
+	Node* iterNode = mHeader->GetNextNode();
+
+	while (iterNode->GetNextNode() != nullptr)
+	{
+		cout << iterNode->GetData() << " -> ";
+		iterNode = iterNode->GetNextNode();
+	}
+
+	cout << iterNode->GetData() << endl;
 }
 
 int main()
 {
-  LinkedList ll;
-  ll.addNode(3);
-  ll.addNode(2);
-  ll.addNode(1);
-  ll.addNode(2);
-  ll.addNode(4);
-  ll.addNode(1);
-  ll.addNode(5);
-  ll.addNode(3);
-  ll.retrieve();
-  // ll.deleteDuplicationNodeUsingHashSet();
-  ll.deleteDuplicationNodeUsingPointer();
-  ll.retrieve();
+	std::unique_ptr<LinkedList> linkedListUniquePointer = std::make_unique<LinkedList>();
+	linkedListUniquePointer->AddNode(3);
+	linkedListUniquePointer->AddNode(2);
+	linkedListUniquePointer->AddNode(1);
+	linkedListUniquePointer->AddNode(2);
+	linkedListUniquePointer->AddNode(4);
+	linkedListUniquePointer->AddNode(1);
+	linkedListUniquePointer->AddNode(5);
+	linkedListUniquePointer->AddNode(3);
+	linkedListUniquePointer->Retrieve();
 
-  return 0;
+	linkedListUniquePointer->DeleteDuplicationNodeUsingHashSet();
+	// linkedListUniquePointer->DeleteDuplicationNodeUsingPointer();
+	linkedListUniquePointer->Retrieve();
+
+	return 0;
 }

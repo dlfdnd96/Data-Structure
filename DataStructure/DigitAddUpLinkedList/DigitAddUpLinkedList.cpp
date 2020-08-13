@@ -31,228 +31,228 @@ using namespace std;
 class LinkedList
 {
 public:
-  class Node
-  {
-  public:
-    __int16 data;
-    Node* next = nullptr;
+	class Node
+	{
+	public:
+		__int16 mData;
+		Node* next = nullptr;
 
-  public:
-    Node() {}
-    Node(__int16 d) { this->data = d; }
-  }; // end Node class
+	public:
+		Node() {}
+		Node(__int16 d) { this->mData = d; }
+	}; // end Node class
 
-  class Storage
-  {
-  public:
-    bool carry = false;
-    Node* result = nullptr;
-  }; // end Digit class
+	class Storage
+	{
+	public:
+		bool carry = false;
+		Node* result = nullptr;
+	}; // end Digit class
 
-  Node* header;
+	Node* header;
 
 public:
-  LinkedList() { header = new Node(); }
-  void addNode(__int16 d);
-  void deleteNode(__int16 d);
-  Node* getNode(__int16 n);
-  Node* digitAddUp(Node* l1, Node* l2, bool carry);
-  Node* digitAddUp02(Node* l1, Node* l2);
-  Node* insertBefore(Node* n, __int16 data); // 새로운 node를 기존 node 왼쪽에 연결
-  Node* LPadList(Node* l, __int16 length); // 새로운 node를 기존 node 왼쪽에 추가
-  Storage* addLists(Node* l1, Node* l2); // Node 덧셈을 수행
-  __int16 getListLength(Node* l); // Node의 길이를 구함
-  void retrieve();
+	LinkedList() { header = new Node(); }
+	void addNode(__int16 d);
+	void deleteNode(__int16 d);
+	Node* getNode(__int16 n);
+	Node* digitAddUp(Node* l1, Node* l2, bool carry);
+	Node* digitAddUp02(Node* l1, Node* l2);
+	Node* insertBefore(Node* n, __int16 data); // 새로운 node를 기존 node 왼쪽에 연결
+	Node* LPadList(Node* l, __int16 length); // 새로운 node를 기존 node 왼쪽에 추가
+	Storage* addLists(Node* l1, Node* l2); // Node 덧셈을 수행
+	__int16 getListLength(Node* l); // Node의 길이를 구함
+	void retrieve();
 }; // end LinkedList class
 
 void LinkedList::addNode(__int16 d)
 {
-  Node* end = new Node();
-  end->data = d;
-  Node* iterNode = header;
+	Node* end = new Node();
+	end->mData = d;
+	Node* iterNode = header;
 
-  while (iterNode->next != NULL)
-  {
-    iterNode = iterNode->next;
-  }
+	while (iterNode->next != NULL)
+	{
+		iterNode = iterNode->next;
+	}
 
-  iterNode->next = end;
+	iterNode->next = end;
 }
 
 void LinkedList::deleteNode(__int16 d)
 {
-  Node* iterNode = header;
+	Node* iterNode = header;
 
-  while (iterNode->next != NULL)
-  {
-    if (iterNode->next->data == d) iterNode->next = iterNode->next->next;
-    else iterNode = iterNode->next;
-  }
+	while (iterNode->next != NULL)
+	{
+		if (iterNode->next->mData == d) iterNode->next = iterNode->next->next;
+		else iterNode = iterNode->next;
+	}
 }
 
 void LinkedList::retrieve()
 {
-  Node* iterNode = header->next;
+	Node* iterNode = header->next;
 
-  while (iterNode->next != NULL)
-  {
-    cout << iterNode->data << " -> ";
-    iterNode = iterNode->next;
-  }
+	while (iterNode->next != NULL)
+	{
+		cout << iterNode->mData << " -> ";
+		iterNode = iterNode->next;
+	}
 
-  cout << iterNode->data << endl;
+	cout << iterNode->mData << endl;
 }
 
 LinkedList::Node* LinkedList::getNode(__int16 n)
 {
-  Node* iterNode = header;
+	Node* iterNode = header;
 
-  for (int i = 0; i < n; i++)
-  {
-    iterNode = iterNode->next;
-  }
+	for (int i = 0; i < n; i++)
+	{
+		iterNode = iterNode->next;
+	}
 
-  return iterNode;
+	return iterNode;
 }
 
 LinkedList::Node* LinkedList::digitAddUp(Node* l1, Node* l2, bool carry)
 {
-  // 계산이 다 끝났으면 NULL
-  if (l1 == NULL && l2 == NULL && carry == false) return NULL;
+	// 계산이 다 끝났으면 NULL
+	if (l1 == NULL && l2 == NULL && carry == false) return NULL;
 
-  Node* result = new Node();
-  __int32 value = carry;
+	Node* result = new Node();
+	__int32 value = carry;
 
-  // 덧셈
-  if (l1 != NULL) value += l1->data;
-  if (l2 != NULL) value += l2->data;
+	// 덧셈
+	if (l1 != NULL) value += l1->mData;
+	if (l2 != NULL) value += l2->mData;
 
-  // 캐리 확인
-  result->data = value % 10;
+	// 캐리 확인
+	result->mData = value % 10;
 
-  if (l1 != NULL || l2 != NULL)
-  {
-    // 재귀함수
-    Node* next = digitAddUp(
-      l1 == NULL ? NULL : l1->next,
-      l2 == NULL ? NULL : l2->next,
-      value >= 10 ? true : false
-    );
-    result->next = next;
-  }
+	if (l1 != NULL || l2 != NULL)
+	{
+		// 재귀함수
+		Node* next = digitAddUp(
+			l1 == NULL ? NULL : l1->next,
+			l2 == NULL ? NULL : l2->next,
+			value >= 10 ? true : false
+		);
+		result->next = next;
+	}
 
-  return result;
+	return result;
 }
 
 LinkedList::Node* LinkedList::digitAddUp02(Node* l1, Node* l2)
 {
-  // Node 길이를 구함
-  __int16 len1 = getListLength(l1);
-  __int16 len2 = getListLength(l2);
+	// Node 길이를 구함
+	__int16 len1 = getListLength(l1);
+	__int16 len2 = getListLength(l2);
 
-  // 길이가 짧은 node는 다른 node 길이만큼 0으로 채움
-  if (len1 < len2) l1 = LPadList(l1, len2 - len1);
-  else l2 = LPadList(l2, len1 - len2);
+	// 길이가 짧은 node는 다른 node 길이만큼 0으로 채움
+	if (len1 < len2) l1 = LPadList(l1, len2 - len1);
+	else l2 = LPadList(l2, len1 - len2);
 
-  // 객체를 이용하여 덧셈을 수행
-  Storage* storage = addLists(l1, l2);
+	// 객체를 이용하여 덧셈을 수행
+	Storage* storage = addLists(l1, l2);
 
-  // 맨 앞에 carry가 있으면 carry 추가
-  if (storage->carry) storage->result = insertBefore(storage->result, storage->carry);
-  
-  return storage->result;
+	// 맨 앞에 carry가 있으면 carry 추가
+	if (storage->carry) storage->result = insertBefore(storage->result, storage->carry);
+
+	return storage->result;
 }
 
 __int16 LinkedList::getListLength(Node* l)
 {
-  __int16 total = 0;
+	__int16 total = 0;
 
-  while (l != NULL)
-  {
-    total++;
-    l = l->next;
-  }
+	while (l != NULL)
+	{
+		total++;
+		l = l->next;
+	}
 
-  return total;
+	return total;
 }
 
 LinkedList::Node* LinkedList::insertBefore(Node* n, __int16 data)
 {
-  Node* before = new Node(data);
+	Node* before = new Node(data);
 
-  if (n != NULL) before->next = n;
+	if (n != NULL) before->next = n;
 
-  return before;
+	return before;
 }
 
 LinkedList::Node* LinkedList::LPadList(Node* l, __int16 length)
 {
-  Node* head = l;
+	Node* head = l;
 
-  for (int i = 0; i < length; i++)
-  {
-    head = insertBefore(head, 0);
-  }
+	for (int i = 0; i < length; i++)
+	{
+		head = insertBefore(head, 0);
+	}
 
-  return head;
+	return head;
 }
 
 LinkedList::Storage* LinkedList::addLists(Node* l1, Node* l2)
 {
-  if (l1 == NULL && l2 == NULL)
-  {
-    Storage* storage = new Storage();
-    return storage;
-  }
+	if (l1 == NULL && l2 == NULL)
+	{
+		Storage* storage = new Storage();
+		return storage;
+	}
 
-  Storage* storage = addLists(l1->next, l2->next);
-  __int32 value = storage->carry + l1->data + l2->data;
-  __int16 data = value % 10;
+	Storage* storage = addLists(l1->next, l2->next);
+	__int32 value = storage->carry + l1->mData + l2->mData;
+	__int16 data = value % 10;
 
-  storage->result = insertBefore(storage->result, data);
-  storage->carry = value / 10;
+	storage->result = insertBefore(storage->result, data);
+	storage->carry = value / 10;
 
-  return storage;
+	return storage;
 }
 
 int main()
 {
-  LinkedList l1, l2, l3;
-  /* 1번 문제 */
-  //l1.addNode(9);
-  //l1.addNode(1);
-  //l1.addNode(4);
-  //l1.retrieve();
-  //l2.addNode(6);
-  //l2.addNode(4);
-  //l2.addNode(3);
-  //l2.retrieve();
-  //LinkedList::Node* sumNode = l3.digitAddUp(l1.header->next, l2.header->next, false);
-  //while (sumNode->next != NULL)
-  //{
-  //  cout << sumNode->data << " -> ";
-  //  sumNode = sumNode->next;
-  //}
-  //cout << sumNode->data;
+	LinkedList l1, l2, l3;
+	/* 1번 문제 */
+	//l1.addNode(9);
+	//l1.addNode(1);
+	//l1.addNode(4);
+	//l1.retrieve();
+	//l2.addNode(6);
+	//l2.addNode(4);
+	//l2.addNode(3);
+	//l2.retrieve();
+	//LinkedList::Node* sumNode = l3.digitAddUp(l1.header->next, l2.header->next, false);
+	//while (sumNode->next != NULL)
+	//{
+	//  cout << sumNode->data << " -> ";
+	//  sumNode = sumNode->next;
+	//}
+	//cout << sumNode->data;
 
-  /* 2번 문제 */
-  //l1.addNode(4);
-  //l1.addNode(1);
-  l1.addNode(9);
-  l1.addNode(1);
-  l1.retrieve();
-  //l2.addNode(3);
-  //l2.addNode(4);
-  l2.addNode(1);
-  l2.addNode(1);
-  l2.retrieve();
-  LinkedList::Node* sumNode = l3.digitAddUp02(l1.header, l2.header);
-  while (sumNode->next != NULL)
-  {
-    cout << sumNode->data << " -> ";
-    sumNode = sumNode->next;
-  }
-  cout << sumNode->data;
+	/* 2번 문제 */
+	//l1.addNode(4);
+	//l1.addNode(1);
+	l1.addNode(9);
+	l1.addNode(1);
+	l1.retrieve();
+	//l2.addNode(3);
+	//l2.addNode(4);
+	l2.addNode(1);
+	l2.addNode(1);
+	l2.retrieve();
+	LinkedList::Node* sumNode = l3.digitAddUp02(l1.header, l2.header);
+	while (sumNode->next != NULL)
+	{
+		cout << sumNode->mData << " -> ";
+		sumNode = sumNode->next;
+	}
+	cout << sumNode->mData;
 
-  return 0;
+	return 0;
 }

@@ -1,101 +1,114 @@
 #include <iostream>
-#include <stdexcept>
+#include <exception>
 
 using namespace std;
 
-template <typename QT>
+template<typename QT>
 class Queue
 {
+	template<typename NT>
+	class Node
+	{
+	public:
+		Node(NT data) : mData(data) {}
+		~Node() {}
+		const NT GetNodeData() const
+		{
+			return this->mData;
+		}
+		Node<NT>* GetNodeNext() const
+		{
+			return this->mNext;
+		}
+		void SetNodeNext(Node<NT>* inputNode)
+		{
+			this->mNext = inputNode;
+		}
+
+	private:
+		const NT mData;
+		Node<NT>* mNext = nullptr;
+	};
+
 public:
-  template <typename NT>
-  class Node
-  {
-  public:
-	NT data = NULL;
-	Node<NT>* next = nullptr;
-
-  public:
-	Node(NT data) { this->data = data; }
-  }; // end Node class
-
-public:
-  Node<QT>* first = nullptr;
-  Node<QT>* last = nullptr;
-
-public:
-  void add(QT data)
-  {
-	Node<QT>* t = new Node<QT>(data);
-
-	if (last != nullptr)
+	void Add(QT data)
 	{
-	  last->next = t;
+		Node<QT>* newNode = new Node<QT>(data);
+
+		if (mEndQueuePointer != nullptr)
+		{
+			mEndQueuePointer->SetNodeNext(newNode);
+		}
+
+		mEndQueuePointer = newNode;
+
+		if (mFrontQueuePointer == nullptr)
+		{
+			mFrontQueuePointer = mEndQueuePointer;
+		}
 	}
-	last = t;
-
-	if (first == nullptr)
+	const QT Remove()
 	{
-	  first = last;
+		if (mFrontQueuePointer == nullptr)
+		{
+			throw runtime_error("Queue is empty!!");
+		}
+
+		Node<QT>* deleteStoreNode = mFrontQueuePointer;
+		QT currentData = mFrontQueuePointer->GetNodeData();
+		mFrontQueuePointer = mFrontQueuePointer->GetNodeNext();
+
+		if (mFrontQueuePointer == nullptr)
+		{
+			mEndQueuePointer = nullptr;
+		}
+
+		delete deleteStoreNode;
+
+		return currentData;
 	}
-  }
-
-  QT remove()
-  {
-	if (first == nullptr)
+	const QT Peek() const
 	{
-	  throw runtime_error("Queue가 비어있습니다.");
+		if (mFrontQueuePointer == nullptr)
+		{
+			throw runtime_error("Queue is empty!!");
+		}
+
+		return mFrontQueuePointer->GetNodeData();
 	}
-
-	QT data = first->data;
-	first = first->next;
-
-	if (first == nullptr)
+	const bool IsEmpty() const
 	{
-	  last = nullptr;
-	}
-
-	return data;
-  }
-
-  QT peek()
-  {
-	if (first == nullptr)
-	{
-	  throw runtime_error("Queue가 비어있습니다.");
+		return mFrontQueuePointer == nullptr;
 	}
 
-	return first->data;
-  }
-
-  bool isEmpty()
-  {
-	return first == nullptr;
-  }
-}; // end Queue class
+private:
+	Node<QT>* mFrontQueuePointer;
+	Node<QT>* mEndQueuePointer;
+};
 
 int main()
 {
-  Queue<int>* q = new Queue<int>();
-  q->add(1);
-  q->add(2);
-  q->add(3);
-  q->add(4);
+	unique_ptr<Queue<int>> queueUniquePointer = make_unique<Queue<int>>();
+	queueUniquePointer->Add(1);
+	queueUniquePointer->Add(2);
+	queueUniquePointer->Add(3);
+	queueUniquePointer->Add(4);
 
-  try
-  {
-	cout << q->remove() << endl;
-	cout << q->remove() << endl;
-	cout << q->remove() << endl;
-	cout << q->peek() << endl;
-	cout << q->remove() << endl;
-	cout << q->isEmpty() << endl;
-	cout << q->remove() << endl;
-	cout << q->isEmpty() << endl;
-  }
-  catch (const runtime_error& e)
-  {
-	cout << "오류 발생: " << e.what() << endl;
-  }
+	try
+	{
+		cout << "Remove: " << queueUniquePointer->Remove() << endl;
+		cout << "Remove: " << queueUniquePointer->Remove() << endl;
+		cout << "Remove: " << queueUniquePointer->Remove() << endl;
+		cout << "Peek: " << queueUniquePointer->Peek() << endl;
+		cout << "IsEmpty?: " << queueUniquePointer->IsEmpty() << endl;
+		cout << "Remove: " << queueUniquePointer->Remove() << endl;
+		cout << "IsEmpty?: " << queueUniquePointer->IsEmpty() << endl;
+		cout << "Remove: " << queueUniquePointer->Remove() << endl;
+	}
+	catch (const runtime_error errorMessage)
+	{
+		cout << "Exception occur: " << errorMessage.what() << endl;
+	}
 
-  return 0;
+	return 0;
 }

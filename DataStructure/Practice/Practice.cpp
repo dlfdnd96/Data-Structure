@@ -1,160 +1,118 @@
 #include <iostream>
+#include <exception>
 
 using namespace std;
 
-class LinkedList
+template<typename QT>
+class Queue
 {
+	template<typename NT>
+	class Node
+	{
+	public:
+		Node(NT data) : mData(data) {}
+		~Node() {}
+		const NT GetNodeData() const
+		{
+			return this->mData;
+		}
+		Node<NT>* GetNodeNext() const
+		{
+			return this->mNext;
+		}
+		void SetNodeNext(Node<NT>* inputNode)
+		{
+			this->mNext = inputNode;
+		}
+
+	private:
+		const NT mData;
+		Node<NT>* mNext = nullptr;
+	};
+
 public:
-  class Node
-  {
-  public:
-    __int16 data;
-    Node* next;
+	void Add(QT data)
+	{
+		Node<QT>* newNode = new Node<QT>(data);
 
-  public:
-    Node() {}
-    Node(__int32 d) { this->data = d; }
-  };
+		if (mFrontQueuePointer == nullptr)
+		{
+			mFrontQueuePointer = newNode;
+			mEndQueuePointer = mFrontQueuePointer;
 
-  Node* header;
+			return;
+		}
+		
+		newNode->SetNodeNext(mFrontQueuePointer);
+		mFrontQueuePointer = newNode;
 
-  class Storage
-  {
-  public:
-    bool carry = false;
-    Node* result = nullptr;
-  };
+		if (mEndQueuePointer == nullptr)
+		{
+			mEndQueuePointer = mFrontQueuePointer;
+		}
+	}
+	const QT Remove()
+	{
+		if (mFrontQueuePointer == nullptr)
+		{
+			throw runtime_error("Queue is empty!!");
+		}
+		
+		Node<QT>* deleteStoreNode = mFrontQueuePointer;
+		QT currentData = mFrontQueuePointer->GetNodeData();
+		mFrontQueuePointer = mFrontQueuePointer->GetNodeNext();
 
-public:
-  LinkedList() { this->header = new Node(); }
-  void addNode(__int16 d);
-  void retrieve();
-  Node* digitAddUp(Node* n1, Node* n2, bool carry);
-  __int16 getListLength(Node* n);
-  Node* LPadList(Node* n1, __int16 length);
-  Node* insertBefore(Node* n1, __int16 data);
-  Storage* addLists(Node* n1, Node* n2);
+		if (mEndQueuePointer == nullptr)
+		{
+			mEndQueuePointer = mFrontQueuePointer;
+		}
+
+		delete deleteStoreNode;
+
+		return currentData;
+	}
+	const QT Peek() const
+	{
+		if (mFrontQueuePointer == nullptr)
+		{
+			throw runtime_error("Queue is empty!!");
+		}
+
+		return mFrontQueuePointer->GetNodeData();
+	}
+	const bool IsEmpty() const
+	{
+		return mFrontQueuePointer == nullptr;
+	}
+
+private:
+	Node<QT>* mFrontQueuePointer;
+	Node<QT>* mEndQueuePointer;
 };
-
-void LinkedList::addNode(__int16 d)
-{
-  Node* end = new Node();
-  end->data = d;
-  Node* iterNode = header;
-
-  while (iterNode->next != NULL)
-  {
-    iterNode = iterNode->next;
-  }
-
-  iterNode->next = end;
-}
-
-void LinkedList::retrieve()
-{
-  Node* iterNode = header->next;
-
-  while (iterNode->next != NULL)
-  {
-    cout << iterNode->data << " -> ";
-    iterNode = iterNode->next;
-  }
-
-  cout << iterNode->data << endl;
-}
-
-LinkedList::Node* LinkedList::digitAddUp(Node* n1, Node* n2, bool carry)
-{
-  __int16 len1 = getListLength(n1);
-  __int16 len2 = getListLength(n2);
-
-  if (len1 > len2) n2 = LPadList(n2, len1 - len2);
-  else n1 = LPadList(n1, len2 - len1);
-
-  Storage* storage = addLists(n1, n2);
-
-  if (storage->carry) storage->result = insertBefore(storage->result, storage->carry);
-
-  return storage->result;
-}
-
-__int16 LinkedList::getListLength(Node* n1)
-{
-  __int16 total = 0;
-
-  while (n1->next != NULL)
-  {
-    n1 = n1->next;
-    total++;
-  }
-
-  return total;
-}
-
-LinkedList::Node* LinkedList::LPadList(Node* n, __int16 length)
-{
-  Node* head = n;
-
-  for (int i = 0; i < length; i++)
-  {
-    head = insertBefore(head, 0);
-  }
-
-  return head;
-}
-
-LinkedList::Node* LinkedList::insertBefore(Node* n, __int16 data)
-{
-  Node* before = new Node(data);
-
-  if (n != NULL) before->next = n;
-
-  return before;
-}
-
-LinkedList::Storage* LinkedList::addLists(Node* n1, Node* n2)
-{
-  if (n1 == NULL && n2 == NULL)
-  {
-    Storage* storage = new Storage();
-    return storage;
-  }
-
-  Storage* storage = addLists(n1->next, n2->next);
-  __int32 value = storage->carry + n1->data + n2->data;
-  __int16 data = value % 10;
-
-  storage->result = insertBefore(storage->result, data);
-  storage->carry = value / 10;
-
-  return storage;
-}
 
 int main()
 {
-  LinkedList l1, l2, l3, l4, l5;
-  LinkedList::Node* addUpNode;
-  l1.addNode(9);
-  l1.addNode(1);
-  l1.addNode(4);
-  l1.retrieve();
-  l2.addNode(6);
-  l2.addNode(4);
-  l2.addNode(3);
-  l2.retrieve();
-  l4.addNode(9);
-  l4.addNode(9);
-  l4.retrieve();
-  l5.addNode(1);
-  l5.addNode(1);
-  l5.retrieve();
-  addUpNode = l3.digitAddUp(l4.header->next, l5.header->next, false);
-  while (addUpNode->next != NULL)
-  {
-    cout << addUpNode->data << " -> ";
-    addUpNode = addUpNode->next;
-  }
-  cout << addUpNode->data << endl;
+	unique_ptr<Queue<int>> queueUniquePointer = make_unique<Queue<int>>();
+	queueUniquePointer->Add(1);
+	queueUniquePointer->Add(2);
+	queueUniquePointer->Add(3);
+	queueUniquePointer->Add(4);
 
-  return 0;
+	try
+	{
+		cout << "Remove: " << queueUniquePointer->Remove() << endl;
+		cout << "Remove: " << queueUniquePointer->Remove() << endl;
+		cout << "Remove: " << queueUniquePointer->Remove() << endl;
+		cout << "Peek: " << queueUniquePointer->Peek() << endl;
+		cout << "IsEmpty?: " << queueUniquePointer->IsEmpty() << endl;
+		cout << "Remove: " << queueUniquePointer->Remove() << endl;
+		cout << "IsEmpty?: " << queueUniquePointer->IsEmpty() << endl;
+		cout << "Remove: " << queueUniquePointer->Remove() << endl;
+	}
+	catch (const runtime_error errorMessage)
+	{
+		cout << "Exception occur: " << errorMessage.what() << endl;
+	}
+
+	return 0;
 }
