@@ -43,6 +43,10 @@ Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "FindNextNodeInBinarySearchT
 EndProject
 Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "FindDependencyDataSpecifiedInGraph", "FindDependencyDataSpecifiedInGraph\FindDependencyDataSpecifiedInGraph.vcxproj", "{C97DA008-513B-4F05-9080-494C583463B2}"
 EndProject
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "GraphSearch", "GraphSearch\GraphSearch.vcxproj", "{C1F3B34B-F2F0-43B0-A41E-687B58588AE6}"
+EndProject
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "FindPathOfTwoPointsInGraph", "FindPathOfTwoPointsInGraph\FindPathOfTwoPointsInGraph.vcxproj", "{2DE45259-EEE5-4AFE-8403-C16A33967E25}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|x64 = Debug|x64
@@ -211,6 +215,22 @@ Global
 		{C97DA008-513B-4F05-9080-494C583463B2}.Release|x64.Build.0 = Release|x64
 		{C97DA008-513B-4F05-9080-494C583463B2}.Release|x86.ActiveCfg = Release|Win32
 		{C97DA008-513B-4F05-9080-494C583463B2}.Release|x86.Build.0 = Release|Win32
+		{C1F3B34B-F2F0-43B0-A41E-687B58588AE6}.Debug|x64.ActiveCfg = Debug|x64
+		{C1F3B34B-F2F0-43B0-A41E-687B58588AE6}.Debug|x64.Build.0 = Debug|x64
+		{C1F3B34B-F2F0-43B0-A41E-687B58588AE6}.Debug|x86.ActiveCfg = Debug|Win32
+		{C1F3B34B-F2F0-43B0-A41E-687B58588AE6}.Debug|x86.Build.0 = Debug|Win32
+		{C1F3B34B-F2F0-43B0-A41E-687B58588AE6}.Release|x64.ActiveCfg = Release|x64
+		{C1F3B34B-F2F0-43B0-A41E-687B58588AE6}.Release|x64.Build.0 = Release|x64
+		{C1F3B34B-F2F0-43B0-A41E-687B58588AE6}.Release|x86.ActiveCfg = Release|Win32
+		{C1F3B34B-F2F0-43B0-A41E-687B58588AE6}.Release|x86.Build.0 = Release|Win32
+		{2DE45259-EEE5-4AFE-8403-C16A33967E25}.Debug|x64.ActiveCfg = Debug|x64
+		{2DE45259-EEE5-4AFE-8403-C16A33967E25}.Debug|x64.Build.0 = Debug|x64
+		{2DE45259-EEE5-4AFE-8403-C16A33967E25}.Debug|x86.ActiveCfg = Debug|Win32
+		{2DE45259-EEE5-4AFE-8403-C16A33967E25}.Debug|x86.Build.0 = Debug|Win32
+		{2DE45259-EEE5-4AFE-8403-C16A33967E25}.Release|x64.ActiveCfg = Release|x64
+		{2DE45259-EEE5-4AFE-8403-C16A33967E25}.Release|x64.Build.0 = Release|x64
+		{2DE45259-EEE5-4AFE-8403-C16A33967E25}.Release|x86.ActiveCfg = Release|Win32
+		{2DE45259-EEE5-4AFE-8403-C16A33967E25}.Release|x86.Build.0 = Release|Win32
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
