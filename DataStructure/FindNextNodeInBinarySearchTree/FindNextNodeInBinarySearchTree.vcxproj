@@ -21,8 +21,8 @@
   <PropertyGroup Label="Globals">
     <VCProjectVersion>16.0</VCProjectVersion>
     <Keyword>Win32Proj</Keyword>
-    <ProjectGuid>{a857b7c0-7470-4530-a2ab-b6e21bad2aed}</ProjectGuid>
-    <RootNamespace>StackSort</RootNamespace>
+    <ProjectGuid>{9e77c867-5a9e-43c0-8fc4-f3a5ddc7a48e}</ProjectGuid>
+    <RootNamespace>FindNextNodeInBinarySearchTree</RootNamespace>
     <WindowsTargetPlatformVersion>10.0</WindowsTargetPlatformVersion>
   </PropertyGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.Default.props" />
@@ -139,7 +139,7 @@
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
-    <ClCompile Include="StackSort.cpp" />
+    <ClCompile Include="FindNextNodeInBinarySearchTree.cpp" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">

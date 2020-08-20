@@ -21,8 +21,8 @@
   <PropertyGroup Label="Globals">
     <VCProjectVersion>16.0</VCProjectVersion>
     <Keyword>Win32Proj</Keyword>
-    <ProjectGuid>{a857b7c0-7470-4530-a2ab-b6e21bad2aed}</ProjectGuid>
-    <RootNamespace>StackSort</RootNamespace>
+    <ProjectGuid>{c25ed235-7b91-4f99-8027-3545bd1c9868}</ProjectGuid>
+    <RootNamespace>CheckTreeBalance</RootNamespace>
     <WindowsTargetPlatformVersion>10.0</WindowsTargetPlatformVersion>
   </PropertyGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.Default.props" />
@@ -139,7 +139,7 @@
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
-    <ClCompile Include="StackSort.cpp" />
+    <ClCompile Include="CheckTreeBalance.cpp" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">
