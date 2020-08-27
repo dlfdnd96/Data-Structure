@@ -1,6 +1,20 @@
 /*
 *** Graph 검색 DFS, BFS
-*** 영상 보면서 다시 하기
+***   0
+***  /
+*** 1 -- 3     7
+*** |   /| \  /
+*** |  / |  5
+*** | /  |   \
+*** 2 -- 4    \
+***            6 - 8
+*** =======================
+*** DFS(0): 0 1 3 5 7 6 8 4 2
+*** BFS(0): 0 1 2 3 4 5 6 7 8
+*** DFSRecursive(0): 0 1 2 4 3 5 6 8 7
+*** DFS(3): 3 5 7 6 8 4 2 1 0
+*** BFS(3): 3 1 2 4 5 0 6 7 8
+*** DFSRecursive(3): 3 1 0 2 4 5 6 8 7
 */
 #include <iostream>
 #include <vector>
@@ -46,28 +60,28 @@ public:
 public:
     constexpr void Add(const QT& data)
     {
-        QueueNode<QT> inputNode(data);
+        QueueNode<QT>* inputNode = new QueueNode<QT>(data);
 
         if (mEndQueuePointer != nullptr)
         {
-            mEndQueuePointer->SetNextNode(&inputNode);
+            mEndQueuePointer->SetNextNode(inputNode);
         }
 
-        mEndQueuePointer = &inputNode;
+        mEndQueuePointer = inputNode;
 
         if (mFrontQueuePointer == nullptr)
         {
             mFrontQueuePointer = mEndQueuePointer;
         }
     }
-    constexpr QT remove()
+    constexpr QT Remove()
     {
         if (mFrontQueuePointer == nullptr)
         {
             throw std::runtime_error("Queue is empty!!");
         }
 
-        QueueNode<QT>* deleteNode = mFrontQueuePointer;
+        QueueNode<QT>* deleteQueueNode = mFrontQueuePointer;
         QT queueData = mFrontQueuePointer->GetQueueNodeData();
         mFrontQueuePointer = mFrontQueuePointer->GetNextNode();
 
@@ -76,7 +90,7 @@ public:
             mEndQueuePointer = nullptr;
         }
 
-        delete deleteNode;
+        delete deleteQueueNode;
 
         return queueData;
     }
@@ -119,19 +133,23 @@ public:
 
     private:
         __int32 mGraphNodeData = NULL;
-        vector<GraphNode>* mAdjacent;
+        vector<GraphNode>* mAdjacent = nullptr;
         bool mMarked = NULL;
     }; // end Node class
 
 public:
     Graph(__int32 const size)
     {
-        this->nodes = vector<GraphNode>(size);
+        this->nodes = new vector<GraphNode>(size);
 
         for (int index = 0; index < size; ++index)
         {
-            nodes[index] = GraphNode(index);
+            this->nodes[0][index] = GraphNode(index);
         }
+    }
+    ~Graph()
+    {
+        delete nodes;
     }
     void AddEdge(__int32 const index1, __int32 const index2);
     void DFS();
@@ -143,7 +161,7 @@ public:
     void DFSRecursiveByIndex(__int32 const index);
 
 private:
-    vector<GraphNode> nodes;
+    vector<GraphNode>* nodes;
 }; // end Graph class
 
 /* Getter, Setter */
@@ -181,41 +199,35 @@ bool Graph::GraphNode::operator==(const GraphNode& node) const
 
 void Graph::AddEdge(__int32 const index1, __int32 const index2)
 {
-    GraphNode node1 = nodes[index1];
-    GraphNode node2 = nodes[index2];
-    bool temp = false;
+    GraphNode& node1 = nodes[0][index1];
+    GraphNode& node2 = nodes[0][index2];
+    bool isExistedNode = false;
 
-    //vectorIter = std::find(node1.GetAdjacentNode()->begin(), node1.GetAdjacentNode()->end(), node2);
-    //if (vectorIter == node1.GetAdjacentNode()->end())
-    //{
-    //    node2.GetAdjacentNode()->push_back(node1);
-    //}
-
-    for (vector<GraphNode>::iterator nodeIterator = node1.GetAdjacentNode()->begin(); nodeIterator < node1.GetAdjacentNode()->end(); ++nodeIterator)
+    for (const GraphNode& iterNode : *(node1.GetAdjacentNode()))
     {
-        if (*nodeIterator == node2)
+        if (iterNode == node2)
         {
-            temp = true;
+            isExistedNode = true;
         }
     }
 
-    if (!temp)
+    if (!isExistedNode)
     {
-        node1.GetAdjacentNode()->push_back(node2);
+        node1.GetAdjacentNode()->emplace_back(node2);
     }
 
-    temp = false;
-    for (vector<GraphNode>::iterator nodeIterator = node2.GetAdjacentNode()->begin(); nodeIterator < node2.GetAdjacentNode()->end(); ++nodeIterator)
+    isExistedNode = false;
+    for (const GraphNode& iterNode : *(node2.GetAdjacentNode()))
     {
-        if (*nodeIterator == node1)
+        if (iterNode == node1)
         {
-            temp = true;
+            isExistedNode = true;
         }
     }
 
-    if (!temp)
+    if (!isExistedNode)
     {
-        node2.GetAdjacentNode()->push_back(node1);
+        node2.GetAdjacentNode()->emplace_back(node1);
     }
 }
 
@@ -226,28 +238,30 @@ void Graph::DFS()
 
 void Graph::DFSByIndex(__int32 const index)
 {
-    GraphNode& root = nodes[index];
-    stack<GraphNode> stackNode;
-    stackNode.push(root);
+    GraphNode& root = nodes[0][index];
     root.SetMarked(true);
+    stack<GraphNode>* stackNode = new stack<GraphNode>;
+    stackNode->push(root);
 
-    while (!stackNode.empty())
+    while (!stackNode->empty())
     {
-        GraphNode r = stackNode.top();
-        stackNode.pop();
+        GraphNode stackTopNode = stackNode->top();
+        stackNode->pop();
 
-        for (vector<GraphNode>::iterator nodeIterator = r.GetAdjacentNode()->begin(); nodeIterator < r.GetAdjacentNode()->end(); ++nodeIterator)
+        for (const GraphNode& iterNode : *(stackTopNode.GetAdjacentNode()))
         {
-            GraphNode& temp = nodes[nodeIterator->GetGraphNodeData()];
-            if (temp.GetMarked() == false)
+            GraphNode& adjacentNode = nodes[0][iterNode.GetGraphNodeData()];
+            if (!adjacentNode.GetMarked())
             {
-                temp.SetMarked(true);
-                stackNode.push(temp);
+                adjacentNode.SetMarked(true);
+                stackNode->push(adjacentNode);
             }
         }
 
-        Visit(r);
+        Visit(stackTopNode);
     }
+
+    delete stackNode;
 }
 
 void Graph::BFS()
@@ -257,26 +271,29 @@ void Graph::BFS()
 
 void Graph::BFSByIndex(__int32 index)
 {
-    GraphNode& root = nodes[index];
-    Queue<GraphNode> queueNode;
-    queueNode.Add(root);
+    GraphNode& root = nodes[0][index];
     root.SetMarked(true);
+    Queue<GraphNode>* queueNode = new Queue<GraphNode>();
+    queueNode->Add(root);
 
-    while (!queueNode.IsEmpty())
+    while (!queueNode->IsEmpty())
     {
-        GraphNode r = queueNode.remove();
+        GraphNode queueRemoveNode = queueNode->Remove();
 
-        for (GraphNode n : *(r.GetAdjacentNode()))
+        for (const GraphNode& iterNode : *(queueRemoveNode.GetAdjacentNode()))
         {
-            if (n.GetMarked() == false)
+            GraphNode& adjacentNode = nodes[0][iterNode.GetGraphNodeData()];
+            if (!adjacentNode.GetMarked())
             {
-                n.SetMarked(true);
-                queueNode.Add(n);
+                adjacentNode.SetMarked(true);
+                queueNode->Add(adjacentNode);
             }
         }
 
-        Visit(r);
+        Visit(queueRemoveNode);
     }
+
+    delete queueNode;
 }
 
 void Graph::DFSRecursive()
@@ -286,27 +303,28 @@ void Graph::DFSRecursive()
 
 constexpr void Graph::DFSRecursiveByNode(GraphNode* node)
 {
-    //if (node == nullptr)
-    //{
-    //    return;
-    //}
+    if (node == nullptr)
+    {
+        return;
+    }
 
-    //node->SetMarked(true);
-    //Visit(*node);
+    node->SetMarked(true);
+    Visit(*node);
 
-    //for (GraphNode n : node->GetAdjacentNode())
-    //{
-    //    if (node->GetMarked() == false)
-    //    {
-    //        DFSRecursiveByNode(node);
-    //    }
-    //}
+    for (const GraphNode& iterNode : *(node->GetAdjacentNode()))
+    {
+        GraphNode& adjacentNode = nodes[0][iterNode.GetGraphNodeData()];
+        if (!adjacentNode.GetMarked())
+        {
+            DFSRecursiveByNode(&adjacentNode);
+        }
+    }
 }
 
 void Graph::DFSRecursiveByIndex(__int32 const index)
 {
-    GraphNode node = nodes[index];
-    DFSRecursiveByNode(&node);
+    GraphNode& graphNode = nodes[0][index];
+    DFSRecursiveByNode(&graphNode);
 }
 
 int main()
@@ -322,8 +340,10 @@ int main()
     uniqueGraphPointer->AddEdge(5, 6);
     uniqueGraphPointer->AddEdge(5, 7);
     uniqueGraphPointer->AddEdge(6, 8);
-    //uniqueGraphPointer->DFS();
-    uniqueGraphPointer->BFS();
+
+    /* DFS, BFS 탐색 */
+    uniqueGraphPointer->DFS();
+    //uniqueGraphPointer->BFS();
     //uniqueGraphPointer->DFSRecursive();
     //uniqueGraphPointer->DFSByIndex(3);
     //uniqueGraphPointer->BFSByIndex(3);
