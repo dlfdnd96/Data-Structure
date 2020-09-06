@@ -1,10 +1,23 @@
 /*
 *** Graph 검색 DFS, BFS
-*** 영상 보면서 다시 하기
+***   0
+***  /
+*** 1 -- 3     7
+*** |   /| \  /
+*** |  / |  5
+*** | /  |   \
+*** 2 -- 4    \
+***            6 - 8
+*** =======================
+*** DFS(0): 0 1 3 5 7 6 8 4 2
+*** BFS(0): 0 1 2 3 4 5 6 7 8
+*** DFSRecursive(0): 0 1 2 4 3 5 6 8 7
+*** DFS(3): 3 5 7 6 8 4 2 1 0
+*** BFS(3): 3 1 2 4 5 0 6 7 8
+*** DFSRecursive(3): 3 1 0 2 4 5 6 8 7
 */
 #include <iostream>
 #include <vector>
-#include <iterator>
 #include <stack>
 #include <exception>
 
@@ -12,43 +25,42 @@ using std::cout;
 using std::endl;
 using std::vector;
 using std::stack;
-using std::iterator;
 
 template <typename QT>
 class Queue
 {
 public:
     template <typename NT>
-    class Node
+    class QueueNode
     {
     public:
-        constexpr void SetNextNode(Node* const node)
+        constexpr void SetNextNode(QueueNode* const node)
         {
             this->mNext = node;
         }
-        constexpr Node* GetNextNode() const
+        constexpr QueueNode* GetNextNode() const
         {
             return this->mNext;
         }
-        void SetQueueNodeData(NT const data)
+        constexpr void SetQueueNodeData(NT const data)
         {
             this->mQueueNodeData = data;
         }
-        NT GetQueueNodeData() const
+        constexpr NT GetQueueNodeData() const
         {
             return this->mQueueNodeData;
         }
-        Node(NT const data) : mQueueNodeData(data) {}
+        QueueNode(NT const data) : mQueueNodeData(data) {}
 
     private:
         NT mQueueNodeData;
-        Node<NT>* mNext = nullptr;
+        QueueNode<NT>* mNext = nullptr;
     }; // end Node class
 
 public:
-    void Add(QT& const data)
+    constexpr void Add(const QT& data)
     {
-        Node<QT>* inputNode = new Node<QT>(data);
+        QueueNode<QT>* inputNode = new QueueNode<QT>(data);
 
         if (mEndQueuePointer != nullptr)
         {
@@ -62,15 +74,15 @@ public:
             mFrontQueuePointer = mEndQueuePointer;
         }
     }
-    constexpr QT remove()
+    constexpr QT Remove()
     {
         if (mFrontQueuePointer == nullptr)
         {
             throw std::runtime_error("Queue is empty!!");
         }
 
-        Node<QT>* deleteNode = mFrontQueuePointer;
-        QT queueData = mFrontQueuePointer->GetData();
+        QueueNode<QT>* deleteQueueNode = mFrontQueuePointer;
+        QT queueData = mFrontQueuePointer->GetQueueNodeData();
         mFrontQueuePointer = mFrontQueuePointer->GetNextNode();
 
         if (mFrontQueuePointer == nullptr)
@@ -78,7 +90,7 @@ public:
             mEndQueuePointer = nullptr;
         }
 
-        delete deleteNode;
+        delete deleteQueueNode;
 
         return queueData;
     }
@@ -97,176 +109,245 @@ public:
     }
 
 private:
-    Node<QT>* mFrontQueuePointer;
-    Node<QT>* mEndQueuePointer;
+    QueueNode<QT>* mFrontQueuePointer = nullptr;
+    QueueNode<QT>* mEndQueuePointer = nullptr;
 }; // end Queue class
 
 class Graph
 {
 public:
-    class Node
+    class GraphNode
     {
     public:
-        Node() {}
-        Node(__int32 data) : mGraphNodeData(data), mMarked(false)
+        GraphNode() {}
+        GraphNode(__int32 data) : mGraphNodeData(data), mMarked(false)
         {
-            mAdjacent = new vector<Node>();
+            this->mAdjacent = new vector<GraphNode>();
         }
-        ~Node()
-        {
-            delete mAdjacent;
-        }
-        void SetGraphNodeData(__int32 const data);
-        __int32 GetGraphNodeData() const;
-        vector<Node>* GetAdjacentNode() const;
-        void SetMarked(bool const mark);
-        bool GetMarked() const;
+        constexpr void SetGraphNodeData(__int32 const data);
+        constexpr __int32 GetGraphNodeData() const;
+        vector<GraphNode>* GetAdjacentNode() const;
+        constexpr void SetMarked(bool const mark);
+        constexpr bool GetMarked() const;
+        bool operator==(const GraphNode& node) const;
 
     private:
-        __int32 mGraphNodeData;
-        vector<Node>* mAdjacent;
-        bool mMarked;
+        __int32 mGraphNodeData = NULL;
+        vector<GraphNode>* mAdjacent = nullptr;
+        bool mMarked = NULL;
     }; // end Node class
 
 public:
     Graph(__int32 const size)
     {
-        this->nodes = new Node[size];
+        this->nodes = new vector<GraphNode>(size);
 
         for (int index = 0; index < size; ++index)
         {
-            nodes[index] = Node(index);
+            this->nodes[0][index] = GraphNode(index);
         }
     }
     ~Graph()
     {
-        delete[] this->nodes;
+        delete nodes;
     }
-    void AddEdge(__int32 const i1, __int32 const i2);
+    void AddEdge(__int32 const index1, __int32 const index2);
     void DFS();
-    void DFS(__int32 index);
+    void DFSByIndex(__int32 index);
     void BFS();
-    void BFS(__int32 index);
+    void BFSByIndex(__int32 index);
+    void DFSRecursive();
+    constexpr void DFSRecursiveByNode(GraphNode* node);
+    void DFSRecursiveByIndex(__int32 const index);
 
 private:
-    Node* nodes;
+    vector<GraphNode>* nodes;
 }; // end Graph class
 
-void Graph::Node::SetGraphNodeData(__int32 const data)
+/* Getter, Setter */
+constexpr void Graph::GraphNode::SetGraphNodeData(__int32 const data)
 {
     this->mGraphNodeData = data;
 }
-__int32 Graph::Node::GetGraphNodeData() const
+constexpr __int32 Graph::GraphNode::GetGraphNodeData() const
 {
     return this->mGraphNodeData;
 }
-vector<Graph::Node>* Graph::Node::GetAdjacentNode() const
+vector<Graph::GraphNode>* Graph::GraphNode::GetAdjacentNode() const
 {
     return this->mAdjacent;
 }
-void Graph::Node::SetMarked(bool const mark)
+constexpr void Graph::GraphNode::SetMarked(bool const mark)
 {
     this->mMarked = mark;
 }
-bool Graph::Node::GetMarked() const
+constexpr bool Graph::GraphNode::GetMarked() const
 {
     return this->mMarked;
 }
 
+/* Functions */
+void Visit(const Graph::GraphNode& n)
+{
+    cout << n.GetGraphNodeData() << " ";
+}
+
+bool Graph::GraphNode::operator==(const GraphNode& node) const
+{
+    return this->GetGraphNodeData() == node.GetGraphNodeData();
+}
+
 void Graph::AddEdge(__int32 const index1, __int32 const index2)
 {
-    Node n1 = nodes[index1];
-    Node n2 = nodes[index2];
+    GraphNode& node1 = nodes[0][index1];
+    GraphNode& node2 = nodes[0][index2];
+    bool isExistedNode = false;
 
-    if (
-        std::find
-        (
-            n1.GetAdjacentNode()->begin(),
-            n1.GetAdjacentNode()->end(),
-            n2
-        ) == n1.GetAdjacentNode()->end()
-        )
+    for (const GraphNode& iterNode : *(node1.GetAdjacentNode()))
     {
-        n1.GetAdjacentNode()->push_back(n2);
+        if (iterNode == node2)
+        {
+            isExistedNode = true;
+        }
     }
-    if (
-        std::find
-        (
-            n2.GetAdjacentNode()->begin(),
-            n2.GetAdjacentNode()->end(),
-            n1
-        ) == n2.GetAdjacentNode()->end()
-        )
+
+    if (!isExistedNode)
     {
-        n2.GetAdjacentNode()->push_back(n1);
+        node1.GetAdjacentNode()->emplace_back(node2);
+    }
+
+    isExistedNode = false;
+    for (const GraphNode& iterNode : *(node2.GetAdjacentNode()))
+    {
+        if (iterNode == node1)
+        {
+            isExistedNode = true;
+        }
+    }
+
+    if (!isExistedNode)
+    {
+        node2.GetAdjacentNode()->emplace_back(node1);
     }
 }
 
 void Graph::DFS()
 {
-    DFS(0);
+    DFSByIndex(0);
 }
 
-void Graph::DFS(__int32 const index)
+void Graph::DFSByIndex(__int32 const index)
 {
-    Node root = nodes[index];
-    stack<Node>* stackNode = new stack<Node>();
-    stackNode->push(root);
+    GraphNode& root = nodes[0][index];
     root.SetMarked(true);
+    stack<GraphNode>* stackNode = new stack<GraphNode>;
+    stackNode->push(root);
 
     while (!stackNode->empty())
     {
-        Node r = stackNode->top();
+        GraphNode stackTopNode = stackNode->top();
         stackNode->pop();
 
-        for (const auto& n : r.GetAdjacentNode())
+        for (const GraphNode& iterNode : *(stackTopNode.GetAdjacentNode()))
         {
-            if (n.GetMarked() == false)
+            GraphNode& adjacentNode = nodes[0][iterNode.GetGraphNodeData()];
+            if (!adjacentNode.GetMarked())
             {
-                n.SetMarked(true);
-                stackNode->push(n);
+                adjacentNode.SetMarked(true);
+                stackNode->push(adjacentNode);
             }
         }
 
-        Visit(r);
+        Visit(stackTopNode);
     }
+
+    delete stackNode;
 }
 
 void Graph::BFS()
 {
-    BFS(0);
+    BFSByIndex(0);
 }
 
-void Graph::BFS(__int32 index)
+void Graph::BFSByIndex(__int32 index)
 {
-    Node root = nodes[index];
-    Queue<Node>* queueNode = new Queue<Node>();
-    queueNode->Add(root);
+    GraphNode& root = nodes[0][index];
     root.SetMarked(true);
+    Queue<GraphNode>* queueNode = new Queue<GraphNode>();
+    queueNode->Add(root);
 
     while (!queueNode->IsEmpty())
     {
-        Node r = queueNode->remove();
+        GraphNode queueRemoveNode = queueNode->Remove();
 
-        for (const auto& n : r.GetAdjacentNode())
+        for (const GraphNode& iterNode : *(queueRemoveNode.GetAdjacentNode()))
         {
-            if (n.GetMarked() == false)
+            GraphNode& adjacentNode = nodes[0][iterNode.GetGraphNodeData()];
+            if (!adjacentNode.GetMarked())
             {
-                n.SetMarked(true);
-                stackNode->push(n);
+                adjacentNode.SetMarked(true);
+                queueNode->Add(adjacentNode);
             }
         }
 
-        Visit(r);
+        Visit(queueRemoveNode);
+    }
+
+    delete queueNode;
+}
+
+void Graph::DFSRecursive()
+{
+    DFSRecursiveByIndex(0);
+}
+
+constexpr void Graph::DFSRecursiveByNode(GraphNode* node)
+{
+    if (node == nullptr)
+    {
+        return;
+    }
+
+    node->SetMarked(true);
+    Visit(*node);
+
+    for (const GraphNode& iterNode : *(node->GetAdjacentNode()))
+    {
+        GraphNode& adjacentNode = nodes[0][iterNode.GetGraphNodeData()];
+        if (!adjacentNode.GetMarked())
+        {
+            DFSRecursiveByNode(&adjacentNode);
+        }
     }
 }
 
-void Visit(Graph::Node& n)
+void Graph::DFSRecursiveByIndex(__int32 const index)
 {
-    cout << n.GetGraphNodeData() << " ";
+    GraphNode& graphNode = nodes[0][index];
+    DFSRecursiveByNode(&graphNode);
 }
 
 int main()
 {
+    std::unique_ptr<Graph> uniqueGraphPointer = std::make_unique<Graph>(9);
+    uniqueGraphPointer->AddEdge(0, 1);
+    uniqueGraphPointer->AddEdge(1, 2);
+    uniqueGraphPointer->AddEdge(1, 3);
+    uniqueGraphPointer->AddEdge(2, 4);
+    uniqueGraphPointer->AddEdge(2, 3);
+    uniqueGraphPointer->AddEdge(3, 4);
+    uniqueGraphPointer->AddEdge(3, 5);
+    uniqueGraphPointer->AddEdge(5, 6);
+    uniqueGraphPointer->AddEdge(5, 7);
+    uniqueGraphPointer->AddEdge(6, 8);
+
+    /* DFS, BFS 탐색 */
+    uniqueGraphPointer->DFS();
+    //uniqueGraphPointer->BFS();
+    //uniqueGraphPointer->DFSRecursive();
+    //uniqueGraphPointer->DFSByIndex(3);
+    //uniqueGraphPointer->BFSByIndex(3);
+    //uniqueGraphPointer->DFSRecursiveByIndex(3);
+
     return 0;
 }
