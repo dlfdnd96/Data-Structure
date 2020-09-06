@@ -1,118 +1,24 @@
 #include <iostream>
-#include <exception>
+#include <string>
+#include <sstream>
 
 using namespace std;
 
-template<typename QT>
-class Queue
-{
-	template<typename NT>
-	class Node
-	{
-	public:
-		Node(NT data) : mData(data) {}
-		~Node() {}
-		const NT GetNodeData() const
-		{
-			return this->mData;
-		}
-		Node<NT>* GetNodeNext() const
-		{
-			return this->mNext;
-		}
-		void SetNodeNext(Node<NT>* inputNode)
-		{
-			this->mNext = inputNode;
-		}
-
-	private:
-		const NT mData;
-		Node<NT>* mNext = nullptr;
-	};
-
-public:
-	void Add(QT data)
-	{
-		Node<QT>* newNode = new Node<QT>(data);
-
-		if (mFrontQueuePointer == nullptr)
-		{
-			mFrontQueuePointer = newNode;
-			mEndQueuePointer = mFrontQueuePointer;
-
-			return;
-		}
-		
-		newNode->SetNodeNext(mFrontQueuePointer);
-		mFrontQueuePointer = newNode;
-
-		if (mEndQueuePointer == nullptr)
-		{
-			mEndQueuePointer = mFrontQueuePointer;
-		}
-	}
-	const QT Remove()
-	{
-		if (mFrontQueuePointer == nullptr)
-		{
-			throw runtime_error("Queue is empty!!");
-		}
-		
-		Node<QT>* deleteStoreNode = mFrontQueuePointer;
-		QT currentData = mFrontQueuePointer->GetNodeData();
-		mFrontQueuePointer = mFrontQueuePointer->GetNodeNext();
-
-		if (mEndQueuePointer == nullptr)
-		{
-			mEndQueuePointer = mFrontQueuePointer;
-		}
-
-		delete deleteStoreNode;
-
-		return currentData;
-	}
-	const QT Peek() const
-	{
-		if (mFrontQueuePointer == nullptr)
-		{
-			throw runtime_error("Queue is empty!!");
-		}
-
-		return mFrontQueuePointer->GetNodeData();
-	}
-	const bool IsEmpty() const
-	{
-		return mFrontQueuePointer == nullptr;
-	}
-
-private:
-	Node<QT>* mFrontQueuePointer;
-	Node<QT>* mEndQueuePointer;
-};
-
 int main()
 {
-	unique_ptr<Queue<int>> queueUniquePointer = make_unique<Queue<int>>();
-	queueUniquePointer->Add(1);
-	queueUniquePointer->Add(2);
-	queueUniquePointer->Add(3);
-	queueUniquePointer->Add(4);
+    double x;
+    cin >> x;
+    cout << static_cast<int>(x) << endl;
 
-	try
-	{
-		cout << "Remove: " << queueUniquePointer->Remove() << endl;
-		cout << "Remove: " << queueUniquePointer->Remove() << endl;
-		cout << "Remove: " << queueUniquePointer->Remove() << endl;
-		cout << "Peek: " << queueUniquePointer->Peek() << endl;
-		cout << "IsEmpty?: " << queueUniquePointer->IsEmpty() << endl;
-		cout << "Remove: " << queueUniquePointer->Remove() << endl;
-		cout << "IsEmpty?: " << queueUniquePointer->IsEmpty() << endl;
-		cout << "Remove: " << queueUniquePointer->Remove() << endl;
-	}
-	catch (const runtime_error errorMessage)
-	{
-		cout << "Exception occur: " << errorMessage.what() << endl;
-	}
+    //cout << fixed;
+    //cout.precision(6);
+    //ostringstream ss;
+    //ss << x;
+    //string s(ss.str());
+    //string decimal = s.substr(2);
+    string temp = to_string(x);
+    string temp2 = temp.substr(2);
+    cout << temp2 << endl;
 
-	return 0;
+    return 0;
 }
