@@ -6,7 +6,7 @@ int main()
 {
     int a, b;
     cin >> a >> b;
-    cout << ((a > b) ? 1 : 0) << endl;
+    cout << ((a && !b) || (!a && b)) << endl;
 
     return 0;
 }
