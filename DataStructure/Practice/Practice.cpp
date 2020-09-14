@@ -4,9 +4,13 @@ using namespace std;
 
 int main()
 {
-    int a, b;
-    cin >> a >> b;
-    cout << ((a && !b) || (!a && b)) << endl;
+    char a;
+    char b = 'a';
+    cin >> a;
+    for (; b < a; ++b)
+    {
+        cout << b << endl;
+    }
 
     return 0;
 }
