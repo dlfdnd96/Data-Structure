@@ -57,20 +57,20 @@ public:
 public:
     Tree(int size)
     {
-        mTreeRoot = makeBST(0, size - 1);
+        mTreeRoot = makeBSTRecursive(0, size - 1);
         mTreeRoot->GetRightNode()->GetRightNode()->GetRightNode()->SetRightNode(new Node(10));
         mTreeRoot->GetRightNode()->GetRightNode()->SetLeftNode(new Node(11));
     }
     constexpr Node* GetTreeRoot() const;
-    constexpr bool IsBalanced(const Node* root);
+    constexpr bool IsBalancedRecursive(const Node* root);
     constexpr bool IsBalanced2(const Node* root);
     bool IsBalanced3(const Node* root);
 
 private:
-    Node* makeBST(const int start, const int end);
-    constexpr int getHeight(const Node* root);
-    constexpr int checkHeight(const Node* root);
-    constexpr void checkBalanced(const Node* node, Level* obj, int level);
+    Node* makeBSTRecursive(const int start, const int end);
+    constexpr int getHeightRecursive(const Node* root);
+    constexpr int checkHeightRecursive(const Node* root);
+    constexpr void checkBalancedRecursive(const Node* node, Level* obj, int level);
     Node* mTreeRoot;
 }; // end Tree class
 
@@ -121,7 +121,7 @@ int Tree::Level::GetMaxLevel() const
 }
 
 /* function */
-Tree::Node* Tree::makeBST(const int start, const int end)
+Tree::Node* Tree::makeBSTRecursive(const int start, const int end)
 {
     if (start > end)
     {
@@ -130,39 +130,39 @@ Tree::Node* Tree::makeBST(const int start, const int end)
 
     unsigned int mid = (start + end) / 2;
     Node* node = new Node(mid);
-    node->SetLeftNode(makeBST(start, mid - 1));
-    node->SetRightNode(makeBST(mid + 1, end));
+    node->SetLeftNode(makeBSTRecursive(start, mid - 1));
+    node->SetRightNode(makeBSTRecursive(mid + 1, end));
 
     return node;
 }
 
-constexpr bool Tree::IsBalanced(const Tree::Node* root)
+constexpr bool Tree::IsBalancedRecursive(const Tree::Node* root)
 {
     if (root == nullptr)
     {
         return true;
     }
 
-    int heightDiff = getHeight(root->GetLeftNode()) - getHeight(root->GetRightNode());
+    int heightDiff = getHeightRecursive(root->GetLeftNode()) - getHeightRecursive(root->GetRightNode());
     if (abs(heightDiff) > 1)
     {
         return false;
     }
     else
     {
-        return IsBalanced(root->GetLeftNode()) && IsBalanced(root->GetRightNode());
+        return IsBalancedRecursive(root->GetLeftNode()) && IsBalancedRecursive(root->GetRightNode());
     }
 }
 
 constexpr bool Tree::IsBalanced2(const Tree::Node* root)
 {
-    return checkHeight(root) != INT_MIN;
+    return checkHeightRecursive(root) != INT_MIN;
 }
 
 bool Tree::IsBalanced3(const Tree::Node* root)
 {
     Level* obj = new Level();
-    checkBalanced(root, obj, 0);
+    checkBalancedRecursive(root, obj, 0);
     if (std::abs(obj->GetMinLevel() - obj->GetMaxLevel()) > 1)
     {
         return false;
@@ -173,30 +173,30 @@ bool Tree::IsBalanced3(const Tree::Node* root)
     }
 }
 
-constexpr int Tree::getHeight(const Tree::Node* root)
+constexpr int Tree::getHeightRecursive(const Tree::Node* root)
 {
     if (root == nullptr)
     {
         return -1;
     }
 
-    return std::max(getHeight(root->GetLeftNode()), getHeight(root->GetRightNode())) + 1;
+    return std::max(getHeightRecursive(root->GetLeftNode()), getHeightRecursive(root->GetRightNode())) + 1;
 }
 
-constexpr int Tree::checkHeight(const Tree::Node* root)
+constexpr int Tree::checkHeightRecursive(const Tree::Node* root)
 {
     if (root == nullptr)
     {
         return -1;
     }
 
-    int leftHeight = checkHeight(root->GetLeftNode());
+    int leftHeight = checkHeightRecursive(root->GetLeftNode());
     if (leftHeight == INT_MIN)
     {
         return INT_MIN;
     }
 
-    int rightHeight = checkHeight(root->GetRightNode());
+    int rightHeight = checkHeightRecursive(root->GetRightNode());
     if (rightHeight == INT_MIN)
     {
         return INT_MIN;
@@ -213,7 +213,7 @@ constexpr int Tree::checkHeight(const Tree::Node* root)
     }
 }
 
-constexpr void Tree::checkBalanced(const Node* node, Level* obj, int level)
+constexpr void Tree::checkBalancedRecursive(const Node* node, Level* obj, int level)
 {
     if (node == nullptr)
     {
@@ -229,14 +229,14 @@ constexpr void Tree::checkBalanced(const Node* node, Level* obj, int level)
         return;
     }
 
-    checkBalanced(node->GetLeftNode(), obj, level + 1);
-    checkBalanced(node->GetRightNode(), obj, level + 1);
+    checkBalancedRecursive(node->GetLeftNode(), obj, level + 1);
+    checkBalancedRecursive(node->GetRightNode(), obj, level + 1);
 }
 
 int main()
 {
     std::unique_ptr<Tree> uniqueTreePtr = std::make_unique<Tree>(10);
-    cout << uniqueTreePtr->IsBalanced(uniqueTreePtr->GetTreeRoot()) << endl;
+    cout << uniqueTreePtr->IsBalancedRecursive(uniqueTreePtr->GetTreeRoot()) << endl;
     cout << uniqueTreePtr->IsBalanced2(uniqueTreePtr->GetTreeRoot()) << endl;
     cout << uniqueTreePtr->IsBalanced3(uniqueTreePtr->GetTreeRoot()) << endl;
 
