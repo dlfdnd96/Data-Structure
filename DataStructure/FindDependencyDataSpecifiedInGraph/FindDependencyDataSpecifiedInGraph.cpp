@@ -19,7 +19,6 @@ using std::string;
 class Project
 {
 public:
-    Project();
     Project(string name) : mName(name), mMarked(false)
     {
         this->mDependencies = new vector<Project>();
@@ -29,7 +28,7 @@ public:
     vector<Project>* GetDependencies() const;
     bool GetMarked() const;
     constexpr void SetMarked(bool const mark);
-    void AddProjectDependency(const Project* project) const;
+    void AddProjectDependency(Project* project) const;
     vector<Project>* GetProjectDependencies() const;
 
 private:
@@ -61,11 +60,18 @@ constexpr void Project::SetMarked(bool const mark)
 }
 
 /* function */
-void Project::AddProjectDependency(const Project* project) const
+void Project::AddProjectDependency(Project* project) const
 {
-    vector<Project>::iterator iter = std::find(mDependencies->begin(), mDependencies->end(), project);
+    bool isNewProject = true;
+    for (vector<Project>::iterator iter = this->mDependencies->begin(); iter != this->mDependencies->end(); ++iter)
+    {
+        if (iter->GetName() == project->GetName())
+        {
+            isNewProject = false;
+        }
+    }
     
-    if (iter == mDependencies->end())
+    if (isNewProject)
     {
         mDependencies->emplace_back(*project);
     }
@@ -118,7 +124,7 @@ void ProjectManager::buildProjects(const vector<string>* const names)
     this->projects = new map<string, Project>();
     for (unsigned __int32 index = 0; index < names->size(); ++index)
     {
-        projects->insert(std::pair<string, Project>(names[0][index], Project(names[0][index])));
+        projects->insert(std::pair<string, Project>((*names)[index], Project((*names)[index])));
     }
 }
 
@@ -126,8 +132,8 @@ void ProjectManager::addDependencies(const vector<vector<string>>& dependencies)
 {
     for (vector<vector<string>>::iterator::value_type dependency : dependencies)
     {
-        const Project before = findProject(dependency[0]);
-        const Project after = findProject(dependency[1]);
+        Project before = findProject(dependency[0]);
+        Project after = findProject(dependency[1]);
         after.AddProjectDependency(&before);
     }
 }
@@ -136,7 +142,7 @@ void ProjectManager::buildOrderRecursive(Project& project, vector<Project>* orde
 {
     if (!project.GetDependencies()->empty())
     {
-        for (Project p : *project.GetDependencies())
+        for (Project p : *(project.GetDependencies()))
         {
             buildOrderRecursive(p, ordered);
         }
@@ -146,7 +152,7 @@ void ProjectManager::buildOrderRecursive(Project& project, vector<Project>* orde
     {
         project.SetMarked(true);
         (*ordered)[this->index] = project;
-        ++this->index;
+        ++(this->index);
     }
 }
 
@@ -160,7 +166,8 @@ void ProjectManager::initMarkingFlags() const
 
 Project& ProjectManager::findProject(const string name) const
 {
-    map<string, Project>::iterator iter = find(this->projects->begin(), this->projects->end(), name);
+    map<string, Project>::iterator iter = this->projects->find(name);
+
     return iter->second;
 }
 
