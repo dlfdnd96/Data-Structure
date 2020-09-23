@@ -2,65 +2,74 @@
 
 using namespace std;
 
-
-class Node
+struct LinkedList
 {
-public:
-    Node(int data) : mNodeData(data) {}
-    void Append(int data)
-    {
-        Node* currentNode = this;
-        Node* newNode = new Node(data);
-        while (currentNode->mNextNode != nullptr)
-        {
-            currentNode = currentNode->mNextNode;
-        }
+	struct Node
+	{
+		int mNodeData;
+		Node* mNextNode;
+	};
 
-        currentNode->mNextNode = newNode;
-    };
-    void Delete(int data)
-    {
-        Node* currentNode = this;
-        while (currentNode->mNextNode != nullptr)
-        {
-            if (currentNode->mNextNode->mNodeData == data)
-            {
-                currentNode->mNextNode = currentNode->mNextNode->mNextNode;
-            }
-            else
-            {
-                currentNode = currentNode->mNextNode;
-            }
-        }
-    }
-    void Retrieve()
-    {
-        Node* currentNode = this;
-        while (currentNode->mNextNode != nullptr)
-        {
-            cout << currentNode->mNodeData << " -> ";
-            currentNode = currentNode->mNextNode;
-        }
+	LinkedList() : mNodeHeader(new Node()) {}
+	void AddNode(const int data);
+	void DeleteNode(const int data);
+	void Retrieve();
 
-        cout << currentNode->mNodeData << endl;
-    }
-
-public:
-    int mNodeData;
-    Node* mNextNode;
+	Node* mNodeHeader;
 };
+
+
+void LinkedList::AddNode(const int data)
+{
+	Node* iter = mNodeHeader;
+	Node* newNode = new Node();
+	newNode->mNodeData = data;
+	while (iter->mNextNode != nullptr)
+	{
+		iter = iter->mNextNode;
+	}
+
+	iter->mNextNode = newNode;
+}
+
+void LinkedList::DeleteNode(const int data)
+{
+	Node* iter = mNodeHeader;
+	while (iter->mNextNode != nullptr)
+	{
+		if (iter->mNextNode->mNodeData == data)
+		{
+			iter->mNextNode = iter->mNextNode->mNextNode;
+		}
+		else
+		{
+			iter = iter->mNextNode;
+		}
+	}
+}
+
+void LinkedList::Retrieve()
+{
+	Node* iter = mNodeHeader->mNextNode;
+	while (iter->mNextNode != nullptr)
+	{
+		cout << iter->mNodeData << " -> ";
+		iter = iter->mNextNode;
+	}
+
+	cout << iter->mNodeData << endl;
+}
 
 int main()
 {
-    Node* head = new Node(1);
-    head->Append(2);
-    head->Append(3);
-    head->Append(4);
-    head->Retrieve();
-    head->Delete(2);
-    head->Retrieve();
-    head->Delete(3);
-    head->Retrieve();
+	LinkedList n;
+	n.AddNode(1);
+	n.AddNode(2);
+	n.AddNode(3);
+	n.AddNode(4);
+	n.Retrieve();
+	n.DeleteNode(1);
+	n.Retrieve();
 
-    return 0;
+	return 0;
 }
