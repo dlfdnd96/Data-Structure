@@ -17,26 +17,69 @@
 
 using std::cout;
 using std::endl;
-using std::vector;
+
+template <typename T>
+struct LinkedList
+{
+    struct LinkedListNode
+    {
+        LinkedListNode() : mNodeData(NULL), mNextNode(nullptr) {}
+
+        T mNodeData;
+        LinkedListNode* mNextNode;
+    };
+
+    LinkedList() : mLinkedListHeader(new LinkedListNode()) {}
+    void AddNode(const T data) const
+    {
+        LinkedListNode* iter = mLinkedListHeader;
+        LinkedListNode* addNode = new LinkedListNode();
+        addNode->mNodeData = data;
+        while (iter->mNextNode != nullptr)
+        {
+            iter = iter->mNextNode;
+        }
+
+        iter->mNextNode = addNode;
+    }
+    int GetNodeSize() const
+    {
+        int count = 0;
+        LinkedListNode* iter = mLinkedListHeader;
+        while (iter->mNextNode != nullptr)
+        {
+            iter = iter->mNextNode;
+            ++count;
+        }
+        
+        return (++count);
+    }
+    LinkedListNode* GetLinkedListHeader() const
+    {
+        return this->mLinkedListHeader;
+    }
+
+    LinkedListNode* mLinkedListHeader;
+}; // end LinkedList struct
 
 class Tree
 {
 public:
-    class Node
+    class TreeNode
     {
     public:
-        Node(const int data) : mTreeNodeData(data) {}
+        TreeNode(const int data) : mTreeNodeData(data) {}
         constexpr int GetTreeNodeData() const;
         void SetTreeNodeData(int const data);
-        constexpr Node* GetTreeNodeLeft() const;
-        void SetTreeNodeLeft(Node* const node);
-        constexpr Node* GetTreeNodeRight() const;
-        void SetTreeNodeRight(Node* const node);
+        constexpr TreeNode* GetTreeNodeLeft() const;
+        void SetTreeNodeLeft(TreeNode* const node);
+        constexpr TreeNode* GetTreeNodeRight() const;
+        void SetTreeNodeRight(TreeNode* const node);
 
     private:
         int mTreeNodeData;
-        Node* mTreeNodeLeft;
-        Node* mTreeNodeRight;
+        TreeNode* mTreeNodeLeft;
+        TreeNode* mTreeNodeRight;
     }; // end Node class
 
 public:
@@ -44,50 +87,50 @@ public:
     {
         mTreeRoot = MakeBSTRecursive(0, size - 1);
     }
-    constexpr Node* GetRootNode() const;
-    constexpr Node* MakeBSTRecursive(const int start, const int end);
-    vector<vector<Node>>* InitBST();
-    void BSTRecursive(const Node* root, vector<vector<Node>>* nodeList, const int level);
-    vector<vector<Node>>* BSTUsingBFS();
-    void PrintList(vector<vector<Tree::Node>>& resultNodeList) const;
+    constexpr TreeNode* GetRootNode() const;
+    constexpr TreeNode* MakeBSTRecursive(const int start, const int end);
+    std::vector<LinkedList<TreeNode>>* InitBST();
+    void BSTRecursive(TreeNode* root, std::vector<LinkedList<TreeNode>>* nodeList, const int level);
+    std::vector<LinkedList<TreeNode>>* BSTUsingBFS();
+    void PrintList(std::vector<LinkedList<TreeNode>>& resultNodeList) const;
 
 private:
-    Node* mTreeRoot;
+    TreeNode* mTreeRoot;
 
 }; // end Tree class
 
 /* Getter, Setter */
-constexpr int Tree::Node::GetTreeNodeData() const
+constexpr int Tree::TreeNode::GetTreeNodeData() const
 {
     return this->mTreeNodeData;
 }
-void Tree::Node::SetTreeNodeData(int const data)
+void Tree::TreeNode::SetTreeNodeData(int const data)
 {
     this->mTreeNodeData = data;
 }
-constexpr Tree::Node* Tree::Node::GetTreeNodeLeft() const
+constexpr Tree::TreeNode* Tree::TreeNode::GetTreeNodeLeft() const
 {
     return this->mTreeNodeLeft;
 }
-void Tree::Node::SetTreeNodeLeft(Node* const node)
+void Tree::TreeNode::SetTreeNodeLeft(TreeNode* const node)
 {
     this->mTreeNodeLeft = node;
 }
-constexpr Tree::Node* Tree::Node::GetTreeNodeRight() const
+constexpr Tree::TreeNode* Tree::TreeNode::GetTreeNodeRight() const
 {
     return this->mTreeNodeRight;
 }
-void Tree::Node::SetTreeNodeRight(Node* const node)
+void Tree::TreeNode::SetTreeNodeRight(TreeNode* const node)
 {
     this->mTreeNodeRight = node;
 }
-constexpr Tree::Node* Tree::GetRootNode() const
+constexpr Tree::TreeNode* Tree::GetRootNode() const
 {
     return this->mTreeRoot;
 }
 
 /* Tree class functions */
-constexpr Tree::Node* Tree::MakeBSTRecursive(const int start, const int end)
+constexpr Tree::TreeNode* Tree::MakeBSTRecursive(const int start, const int end)
 {
     if (start > end)
     {
@@ -95,66 +138,68 @@ constexpr Tree::Node* Tree::MakeBSTRecursive(const int start, const int end)
     }
 
     unsigned __int32 mid = (start + end) / 2;
-    Node* curruntNode = new Node(mid);
+    TreeNode* curruntNode = new TreeNode(mid);
     curruntNode->SetTreeNodeLeft(MakeBSTRecursive(start, mid - 1));
     curruntNode->SetTreeNodeRight(MakeBSTRecursive(mid + 1, end));
 
     return curruntNode;
 }
 
-vector<vector<Tree::Node>>* Tree::InitBST()
+std::vector<LinkedList<Tree::TreeNode>>* Tree::InitBST()
 {
-    vector<vector<Tree::Node>>* nodeLists = new vector<vector<Tree::Node>>();
+    std::vector<LinkedList<Tree::TreeNode>>* nodeLists = new std::vector<LinkedList<Tree::TreeNode>>();
     BSTRecursive(mTreeRoot, nodeLists, 0);
 
     return nodeLists;
 }
 
-void Tree::BSTRecursive(const Node* root, vector<vector<Tree::Node>>* nodeList, const int level)
+void Tree::BSTRecursive(TreeNode* root, std::vector<LinkedList<Tree::TreeNode>>* nodeList, const int level)
 {
     if (root == nullptr)
     {
         return;
     }
 
-    vector<Tree::Node>* list = nullptr;
+    LinkedList<Tree::TreeNode>* list = nullptr;
     if (nodeList->size() == level)
     {
-        list = new vector<Node>();
+        list = new LinkedList<TreeNode>();
         nodeList->emplace_back(*list);
     }
     else
     {
-        list = &(*nodeList)[level];
+        list = &((*nodeList)[level]);
     }
-    list->emplace_back(root);
+    list->AddNode(*root);
     BSTRecursive(root->GetTreeNodeLeft(), nodeList, level + 1);
     BSTRecursive(root->GetTreeNodeRight(), nodeList, level + 1);
 }
 
-vector<vector<Tree::Node>>* Tree::BSTUsingBFS()
+std::vector<LinkedList<Tree::TreeNode>>* Tree::BSTUsingBFS()
 {
-    vector<vector<Tree::Node>>* resultNodeList = new vector<vector<Tree::Node>>();
-    vector<Tree::Node>* currentLevelLinkedList = new vector<Tree::Node>();
+    std::vector<LinkedList<Tree::TreeNode>>* resultNodeList = new std::vector<LinkedList<Tree::TreeNode>>();
+    LinkedList<Tree::TreeNode>* currentLevelLinkedList = new LinkedList<Tree::TreeNode>();
     if (mTreeRoot != nullptr)
     {
-        currentLevelLinkedList->emplace_back(mTreeRoot);
+        currentLevelLinkedList->AddNode(*mTreeRoot);
     }
 
-    while (currentLevelLinkedList->size() > 0)
+    while (currentLevelLinkedList->GetNodeSize() > 0)
     {
-        resultNodeList->emplace_back(currentLevelLinkedList);
-        vector<Tree::Node> parents = *currentLevelLinkedList;
-        currentLevelLinkedList = new vector<Tree::Node>();
-        for (Tree::Node parent : parents)
+        resultNodeList->emplace_back(*currentLevelLinkedList);
+        LinkedList<Tree::TreeNode> parents = *currentLevelLinkedList;
+        currentLevelLinkedList = new LinkedList<Tree::TreeNode>();
+        LinkedList<Tree::TreeNode>::LinkedListNode* iter = parents.GetLinkedListHeader();
+        while (iter->mNextNode != nullptr)
         {
+            TreeNode parent = iter->mNodeData;
             if (parent.GetTreeNodeLeft() != nullptr)
             {
-                currentLevelLinkedList->emplace_back(parent.GetTreeNodeLeft());
+                currentLevelLinkedList->AddNode(*(parent.GetTreeNodeLeft()));
             }
             if (parent.GetTreeNodeRight() != nullptr)
             {
-                currentLevelLinkedList->emplace_back(parent.GetTreeNodeRight());
+                currentLevelLinkedList->AddNode(*(parent.GetTreeNodeRight()));
             }
         }
     }
@@ -162,22 +207,24 @@ vector<vector<Tree::Node>>* Tree::BSTUsingBFS()
     return resultNodeList;
 }
 
-void Tree::PrintList(vector<vector<Tree::Node>>& resultNodeList) const
+void Tree::PrintList(std::vector<LinkedList<Tree::TreeNode>>& resultNodeList) const
 {
-    for (vector<Tree::Node> nodeList : resultNodeList)
+    for (LinkedList<Tree::TreeNode> nodeList : resultNodeList)
     {
-        for (Tree::Node node : nodeList)
+        LinkedList<Tree::TreeNode>::LinkedListNode* iter = nodeList.GetLinkedListHeader()->mNextNode;
+        while (iter->mNextNode != nullptr)
         {
-            cout << node.GetTreeNodeData() << " ";
+            cout << iter->mNodeData.GetTreeNodeData() << " ";
+            iter = iter->mNextNode;
         }
-        cout << endl;
+        cout << iter->mNodeData.GetTreeNodeData() << " " << endl;
     }
 }
 
 int main()
 {
     Tree t(10);
-    t.PrintList(t.InitBST());
+    t.PrintList(*(t.InitBST()));
 
     return 0;
 }
