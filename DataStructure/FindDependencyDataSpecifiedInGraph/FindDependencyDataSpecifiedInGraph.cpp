@@ -10,180 +10,167 @@
 #include <map>
 #include <string>
 
-using std::cout;
-using std::endl;
-using std::vector;
-using std::map;
-using std::string;
-
-class Project
+template <typename T>
+struct LinkedList
 {
-public:
-    Project(string name) : mName(name), mMarked(false)
+    struct LinkedListNode
     {
-        this->mDependencies = new vector<Project>();
-    }
-    string GetName() const;
-    void SetName(string const name);
-    vector<Project>* GetDependencies() const;
-    bool GetMarked() const;
-    constexpr void SetMarked(bool const mark);
-    void AddProjectDependency(Project* project) const;
-    vector<Project>* GetProjectDependencies() const;
+        LinkedListNode() : mNextLinkedListNode(nullptr) {}
+        LinkedListNode(T data) : mLinkedListNodeData(data), mNextLinkedListNode(nullptr) {}
 
-private:
-    string mName;
-    vector<Project>* mDependencies;
-    bool mMarked;
-}; // end Project class
+        T mLinkedListNodeData;
+        LinkedListNode* mNextLinkedListNode;
+    }; // end LinkedListNode struct
 
-/* Getter, Setter */
-string Project::GetName() const
-{
-    return mName;
-}
-void Project::SetName(string const name)
-{
-    this->mName = name;
-}
-vector<Project>* Project::GetDependencies() const
-{
-    return this->mDependencies;
-}
-bool Project::GetMarked() const
-{
-    return this->mMarked;
-}
-constexpr void Project::SetMarked(bool const mark)
-{
-    this->mMarked = mark;
-}
-
-/* function */
-void Project::AddProjectDependency(Project* project) const
-{
-    bool isNewProject = true;
-    for (vector<Project>::iterator iter = this->mDependencies->begin(); iter != this->mDependencies->end(); ++iter)
+    LinkedList() : mLinkedListheader(new LinkedListNode()) {}
+    void AddLinkedListNode(T data)
     {
-        if (iter->GetName() == project->GetName())
+        LinkedListNode* addNode = new LinkedListNode(data);
+        LinkedListNode* iter = mLinkedListheader;
+        while (iter->mNextLinkedListNode != nullptr)
         {
-            isNewProject = false;
+            iter = iter->mNextLinkedListNode;
         }
+
+        iter->mNextLinkedListNode = addNode;
     }
-    
-    if (isNewProject)
+    bool IsEmptyLinkedList()
     {
-        mDependencies->emplace_back(*project);
+        LinkedListNode* iter = mLinkedListheader->mNextLinkedListNode;
+        
+        return iter == nullptr ? true : false;
+    }
+
+    LinkedListNode* mLinkedListheader;
+}; // end LinkedList struct;
+
+struct Project
+{
+    Project() : mProjectName(""), mProjectDependencies(nullptr), mProjectMarked(false) {}
+    Project(const std::string name) : mProjectName(name), mProjectDependencies(new LinkedList<Project>()), mProjectMarked(false) {}
+    void AddDependency(const Project& project) const;
+
+    std::string mProjectName;
+    LinkedList<Project>* mProjectDependencies;
+    bool mProjectMarked;
+}; // end Project struct
+
+void Project::AddDependency(const Project& project) const
+{
+    LinkedList<Project>::LinkedListNode* iter = mProjectDependencies->mLinkedListheader;
+    while (iter != nullptr)
+    {
+        iter = iter->mNextLinkedListNode;
+    }
+
+    if (iter == nullptr)
+    {
+        mProjectDependencies->AddLinkedListNode(project);
     }
 }
 
-vector<Project>* Project::GetProjectDependencies() const
+struct ProjectManager
 {
-    return this->mDependencies;
+    ProjectManager() {}
+    ProjectManager(std::vector<std::string> names, std::vector<std::vector<std::string>> dependencies)
+    {
+        BuildProjects(names);
+        AddDependencies(dependencies);
+    }
+    void BuildProjects(std::vector<std::string> names);
+    void AddDependencies(std::vector<std::vector<std::string>> dependencies) const;
+    Project* BuildOrder() const;
+    void BuildOrderByProject(Project project, Project* ordered) const;
+    void InitMarkingFlags() const;
+    Project FindProject(std::string name) const;
+
+    std::map<std::string, Project>* mProjects;
+}; // end ProjectManager struct
+
+void ProjectManager::BuildProjects(std::vector<std::string> names)
+{
+    mProjects = new std::map<std::string, Project>();
+    for (int index = 0; index < names.size(); ++index)
+    {
+        Project addProject(names[index]);
+        mProjects->insert(std::make_pair(names[index], addProject));
+    }
 }
 
-class ProjectManager
+void ProjectManager::AddDependencies(std::vector<std::vector<std::string>> dependencies) const
 {
-public:
-    ProjectManager(const vector<string>& names, const vector<vector<string>>& dependencies)
+    for (std::vector<std::string> dependency : dependencies)
     {
-        buildProjects(&names);
-        addDependencies(dependencies);
+        Project before = FindProject(dependency[0]);
+        Project after = FindProject(dependency[1]);
+        after.AddDependency(before);
     }
-    vector<Project>* BuildOrder();
+}
 
-private:
-    void buildProjects(const vector<string>* const names);
-    void addDependencies(const vector<vector<string>>& dependencies);
-    Project& findProject(const string dependency) const;
-    void buildOrderRecursive(Project& project, vector<Project>* ordered);
-    void initMarkingFlags() const;
-
-private:
-    map<string, Project>* projects;
-    int index;
-}; // end ProjectManager class
-
-/* function */
-vector<Project>* ProjectManager::BuildOrder()
+int index;
+Project* ProjectManager::BuildOrder() const
 {
-    initMarkingFlags();
-
-    vector<Project>* ordered = new vector<Project>(this->projects->size());
-    this->index = 0;
-    for (map<string, Project>::iterator iter = this->projects->begin(); iter != this->projects->end(); ++iter)
+    InitMarkingFlags();
+    Project* ordered = new Project[mProjects->size()];
+    index = 0;
+    std::map<std::string, Project>::iterator iter = mProjects->begin();
+    for (; iter != mProjects->end(); ++iter)
     {
-        buildOrderRecursive(iter->second, ordered);
+        BuildOrderByProject(iter->second, ordered);
     }
 
     return ordered;
 }
 
-void ProjectManager::buildProjects(const vector<string>* const names)
+void ProjectManager::BuildOrderByProject(Project project, Project* ordered) const
 {
-    this->projects = new map<string, Project>();
-    for (unsigned __int32 index = 0; index < names->size(); ++index)
+    if (!project.mProjectDependencies->IsEmptyLinkedList())
     {
-        projects->insert(std::pair<string, Project>((*names)[index], Project((*names)[index])));
-    }
-}
-
-void ProjectManager::addDependencies(const vector<vector<string>>& dependencies)
-{
-    for (vector<vector<string>>::iterator::value_type dependency : dependencies)
-    {
-        Project before = findProject(dependency[0]);
-        Project after = findProject(dependency[1]);
-        after.AddProjectDependency(&before);
-    }
-}
-
-void ProjectManager::buildOrderRecursive(Project& project, vector<Project>* ordered)
-{
-    if (!project.GetDependencies()->empty())
-    {
-        for (Project p : *(project.GetDependencies()))
+        LinkedList<Project>::LinkedListNode* iter = project.mProjectDependencies->mLinkedListheader->mNextLinkedListNode;
+        while (iter != nullptr)
         {
-            buildOrderRecursive(p, ordered);
+            BuildOrderByProject(iter->mLinkedListNodeData, ordered);
+            iter = iter->mNextLinkedListNode;
         }
     }
 
-    if (!project.GetMarked())
+    if (!project.mProjectMarked)
     {
-        project.SetMarked(true);
-        (*ordered)[this->index] = project;
-        ++(this->index);
+        project.mProjectMarked = true;
+        ordered[index] = project;
+        ++index;
     }
 }
 
-void ProjectManager::initMarkingFlags() const
+void ProjectManager::InitMarkingFlags() const
 {
-    for (map<string, Project>::iterator iter = this->projects->begin(); iter != this->projects->end(); ++iter)
+    std::map<std::string, Project>::iterator iter = mProjects->begin();
+    for (; iter != mProjects->end(); ++iter)
     {
-        iter->second.SetMarked(false);
+        iter->second.mProjectMarked = false;
     }
 }
 
-Project& ProjectManager::findProject(const string name) const
+Project ProjectManager::FindProject(std::string name) const
 {
-    map<string, Project>::iterator iter = this->projects->find(name);
+    std::map<std::string, Project>::iterator iter = mProjects->find(name);
 
     return iter->second;
 }
 
 int main()
 {
-    vector<string> projects = { "a", "b", "c", "d", "e", "f", "g" };
-    vector<vector<string>> dependencies = { {"f", "a"}, {"f", "b"}, {"f", "c"}, {"b", "a"}, {"c", "a"}, {"a", "e"}, {"b", "e"}, {"d", "g"} };
-    ProjectManager* pm = new ProjectManager(projects, dependencies);
-    vector<Project>* ps = pm->BuildOrder();
-    for (int index = 0; index < ps->size(); ++index)
+    std::vector<std::string> projects = { "a", "b", "c", "d", "e", "f", "g" };
+    std::vector<std::vector<std::string>> dependencies = { {"f", "a"}, {"f", "b"}, {"f", "c"}, {"b", "a"}, {"c", "a"}, {"a", "e"}, {"b", "e"}, {"d", "g"} };
+    ProjectManager pm(projects, dependencies);
+    Project* ps = pm.BuildOrder();
+    for (int index = 0; index < _msize(ps) / sizeof(ps); ++index)
     {
-        if (!ps[index].empty())
+        if (ps->mProjectName == "")
         {
-            cout << (*ps)[index].GetName() + " ";
+            std::cout << ps[index].mProjectName << " ";
         }
     }
-    
+
     return 0;
 }

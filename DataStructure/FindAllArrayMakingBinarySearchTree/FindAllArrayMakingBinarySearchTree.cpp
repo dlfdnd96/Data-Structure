@@ -139,6 +139,8 @@ void Tree::weaveLists(std::vector<int>& first, std::vector<int>& second, std::ve
             result->emplace_back(secondData);
         }
 
+        results->emplace_back(*result);
+
         return;
     }
 
@@ -159,7 +161,7 @@ void Tree::weaveLists(std::vector<int>& first, std::vector<int>& second, std::ve
 
 int main()
 {
-    Tree t(5);
+    Tree t(6);
     std::vector<std::vector<int>>* result = t.AllSequences(t.GetTreeRoot());
     for (std::vector<int> l : *result)
     {
